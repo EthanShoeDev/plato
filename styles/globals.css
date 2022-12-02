@@ -19,8 +19,14 @@ a {
   html {
     color-scheme: dark;
   }
+
   body {
     color: white;
     background: rgb(65, 65, 65);
   }
+}
+
+
+.linenumber {
+  color: #858987 !important;
 }
