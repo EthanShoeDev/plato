@@ -24,15 +24,15 @@ const nextConfig = withBundleAnalyzer(
     reactStrictMode: true,
     swcMinify: true,
     pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
-    webpack: (config, { isServer }) => {
-      if (!isServer && config.mode != 'development') {
-        config.module.rules.push({
-          test: /.*react-syntax-highlighter.*/,
-          use: "null-loader",
-        })
-      }
-      return config;
-    }
+    // webpack: (config, { isServer }) => {
+    //   if (!isServer && config.mode != 'development') {
+    //     config.module.rules.push({
+    //       test: /.*react-syntax-highlighter.*/,
+    //       use: "null-loader",
+    //     })
+    //   }
+    //   return config;
+    // }
   })
 );
 

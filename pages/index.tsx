@@ -1,6 +1,8 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import Link from 'next/link'
+import CanvasBackgroundEffect from '../components/canvasBackgroundEffect'
+import {ShowWindowDimensions} from '../hooks/windowSize.hook'
 import styles from '../styles/Home.module.css'
 
 export default function Home() {
@@ -15,6 +17,8 @@ export default function Home() {
       <main className={styles.main}>
       <Link href="/temp">Temp</Link>
       <Link href="/mdx">mdx</Link>
+      <CanvasBackgroundEffect></CanvasBackgroundEffect>
+      <ShowWindowDimensions></ShowWindowDimensions>
         <h1 className={styles.title}>
 
           Welcome to <a href="https://nextjs.org">Next.js!</a>
