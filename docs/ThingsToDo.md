@@ -1,3 +1,3 @@
-[] - Make markdown cheat sheat.
+[] - Make markdown cheat sheet.
 [] - See about embedding a svelte demo
-[] - Figure out folder strucuture. Apps direcitory? NextJS 13
+[] - Implement mdx-remote so that syntax highlight code is not part of main bundle.

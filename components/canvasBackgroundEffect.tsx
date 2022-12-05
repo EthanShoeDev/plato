@@ -1,80 +1,146 @@
-import styles from '../styles/backgroundCanvas.module.css'
-import { useRef, useEffect } from "react";
-import { useWindowSize } from '../hooks/windowSize.hook';
+import React, { useRef, useEffect, useState } from "react";
+import * as THREE from "three";
+import styles from "../styles/backgroundCanvas.module.css";
+import Loading from "./loading";
+import { useIsSSR } from "../hooks/ssr.hook";
+import useScrollPosition from "../hooks/useScrollPosition.hook";
+import { useWindowSize } from "../hooks/windowSize.hook";
+import Stats from "three/examples/jsm/libs/stats.module";
 
+type Size = { height: number; width: number };
+class AnimationState {
+  scene: THREE.Scene;
+  camera: THREE.PerspectiveCamera;
+  renderer: THREE.WebGLRenderer;
+  rays: THREE.Mesh[];
+  dispose: () => void;
+  scrollPosition = 0;
+  disposed = false;
+  stats: Stats;
 
-type Ball = {x: number, y: number, vx: number, vy: number, radius: number}
-type Size = { width: number, height: number};
-  
+  constructor(readonly containerRef: HTMLDivElement, size?: Size) {
+    // Setup scene
+    if (!size)
+      size = {
+        // height: window.innerHeight + 300,
+        height: containerRef.clientHeight,
+        width: containerRef.clientWidth,
+      };
+    this.scene = new THREE.Scene();
+    this.scene.background = new THREE.Color(0x111524);
+    this.scene.fog = new THREE.Fog(this.scene.background, 50, 300);
+    this.camera = new THREE.PerspectiveCamera(
+      50,
+      size.width / size.height,
+      0.1,
+      1000
+    );
+    this.renderer = new THREE.WebGLRenderer({
+      antialias: true,
+    });
+    this.renderer.setSize(size.width, size.height);
+    containerRef.appendChild(this.renderer.domElement);
+    this.stats = Stats();
+    containerRef.appendChild(this.stats.dom);
 
-function Canvas() {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const requestIdRef = useRef<number | null>(null);
-  const ballRef = useRef({ x: 50, y: 50, vx: 3.9, vy: 3.3, radius: 20 });
-  const size = useWindowSize();
-//   const size = { width: 400, height: 250 };
+    // Setup cube
+    const geometry = new THREE.CylinderGeometry(0.3, 0.3, 1, 20);
+    const materials = [
+      new THREE.MeshBasicMaterial({
+        color: 0xb19166,
+      }),
+      new THREE.MeshBasicMaterial({
+        color: 0x878a92,
+      }),
+      new THREE.MeshBasicMaterial({
+        color: 0x59558d,
+      }),
+      new THREE.MeshBasicMaterial({
+        color: 0x597a59,
+      }),
+    ];
+    this.rays = Array.from({ length: 300 }, (v, i) => {
+      const ray = new THREE.Mesh(
+        geometry,
+        materials[Math.floor(materials.length * Math.random())]
+      );
+      this.scene.add(ray);
+      ray.rotation.x = (90 * Math.PI) / 180;
+      this.setRayToRandomStart(ray);
+      return ray;
+    });
 
-
-  const updateBall = () => {
-    const ball = ballRef.current;
-    ball.x += ball.vx;
-    ball.y += ball.vy;
-    if (ball.x + ball.radius >= size.width) {
-      ball.vx = -ball.vx;
-      ball.x = size.width - ball.radius;
-    }
-    if (ball.x - ball.radius <= 0) {
-      ball.vx = -ball.vx;
-      ball.x = ball.radius;
-    }
-    if (ball.y + ball.radius >= size.height) {
-      ball.vy = -ball.vy;
-      ball.y = size.height - ball.radius;
-    }
-    if (ball.y - ball.radius <= 0) {
-      ball.vy = -ball.vy;
-      ball.y = ball.radius;
-    }
-  };
-
-
-  const frameRenderer = (ctx: any, size: Size, ball: Ball) => {
-    ctx.clearRect(0, 0, size.width, size.height);
-  
-    const drawCircle = (x: number, y: number, radius: number, color: string, alpha = 1.0) => {
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(x, y, radius, 0, Math.PI * 2);
-      ctx.fillStyle = color;
-      ctx.globalAlpha = alpha;
-      ctx.fill();
-      ctx.closePath();
-      ctx.restore();
+    this.dispose = () => {
+      this.disposed = true;
+      containerRef.removeChild(this.renderer.domElement);
+      containerRef.removeChild(this.stats.domElement);
+      geometry.dispose();
+      materials.forEach((material) => material.dispose());
     };
-  
-    drawCircle(ball.x, ball.y, ball.radius, "#444");
+
+    this.animate();
   }
 
-  const renderFrame = () => {
-    const ctx = canvasRef.current?.getContext("2d");
-    updateBall();
-    frameRenderer(ctx, size, ballRef.current);
-  };
+  setRayToRandomStart(ray: THREE.Mesh) {
+    const randRange = (range: number, center = 0) =>
+      Math.random() * range - range / 2 + center;
 
-  const tick = () => {
-    if (!canvasRef.current) return;
-    renderFrame();
-    requestIdRef.current = requestAnimationFrame(tick);
-  };
+    ray.position.x = randRange(180);
+    ray.position.y = randRange(180);
+    ray.position.z = randRange(150, -275);
+  }
 
-  useEffect(() => {
-    requestIdRef.current = requestAnimationFrame(tick);
-    return () => {
-      cancelAnimationFrame(requestIdRef.current!);
-    };
-  }, [size]);
+  updateSize(size: Size) {
+    this.camera.aspect = size.width / size.height;
+    this.camera.updateProjectionMatrix();
+    // this.renderer.setSize(size.width, size.height + 300);
+    this.renderer.setSize(size.width, size.height);
+  }
 
-  return <canvas {...size} ref={canvasRef} className={styles.backgroundCanvas}/>;
+  setScrollPos(val: number) {
+    this.scrollPosition = val;
+  }
+
+  animate() {
+    if (!this.disposed) requestAnimationFrame(this.animate.bind(this));
+
+    this.rays.forEach((ray) => {
+      ray.rotation.y += 0.01;
+      ray.position.z += 0.01 * this.scrollPosition + 0.05;
+
+      if (ray.position.z >= 5) this.setRayToRandomStart(ray);
+    });
+
+    this.renderer.render(this.scene, this.camera);
+    this.stats.update();
+  }
 }
 
-export default Canvas;
+const CanvasBackgroundAnimation = () => {
+  const scrollPosition = useScrollPosition();
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const animationState = useRef<AnimationState | null>(null);
+  const windowSize = useWindowSize();
+
+  useEffect(
+    () =>
+      animationState.current?.updateSize({
+        height: windowSize.height,
+        width: document.body.clientWidth,
+      }),
+    [windowSize]
+  );
+  useEffect(() => {
+    animationState.current?.setScrollPos(scrollPosition);
+  }, [scrollPosition]);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    animationState.current = new AnimationState(containerRef.current!);
+    return animationState.current.dispose;
+  }, []);
+
+  return <div ref={containerRef} className={styles.backgroundCanvas} />;
+};
+
+export default CanvasBackgroundAnimation;

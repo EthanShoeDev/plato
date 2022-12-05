@@ -1,13 +1,12 @@
-import '../styles/globals.css';
-import type { AppProps } from 'next/app';
-import { MDXProvider } from '@mdx-js/react'
-import Image from 'next/image'
-import ClientSideSyntaxHighlight from '../components/clientSyntaxHighlighting';
-
+import "../styles/globals.css";
+import type { AppProps } from "next/app";
+import { MDXProvider } from "@mdx-js/react";
+import Image from "next/image";
+import ClientSideSyntaxHighlight from "../components/clientSyntaxHighlighting";
 
 const ResponsiveImage = (props: any) => (
   <Image alt={props.alt} layout="responsive" {...props} />
-)
+);
 
 const components = {
   img: ResponsiveImage,
@@ -16,12 +15,12 @@ const components = {
   // p: Text,
   // pre: Pre,
   code: ClientSideSyntaxHighlight,
-}
+};
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <MDXProvider components={components}>
       <Component {...pageProps} />
     </MDXProvider>
-  )
+  );
 }
