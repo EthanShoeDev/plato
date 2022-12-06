@@ -132,7 +132,6 @@ const CanvasBackgroundAnimation = () => {
   );
   useEffect(() => {
     animationState.current?.setScrollPos(scrollPosition);
-    console.log(scrollPosition);
   }, [scrollPosition]);
 
   useEffect(() => {
@@ -144,9 +143,8 @@ const CanvasBackgroundAnimation = () => {
 
   return (
     <>
-      <div
-        className={switchToStaticPos ? styles.spacerStatic : styles.spacer}
-      />
+      {!switchToStaticPos && <div className={styles.spacerStatic} />}
+      <div className={styles.spacerStatic} />
       <div
         ref={containerRef}
         className={`${styles.backgroundCanvas} ${

@@ -1,6 +1,5 @@
-import AsyncCanvasBackgroundAnimation from "../components/asyncCanvasBackgroundEffect";
-import { ShowWindowDimensions } from "../hooks/windowSize.hook";
+import Loading from "./loading";
 
-export default function Landing() {
-  return <AsyncCanvasBackgroundAnimation />;
+export default function Temp() {
+  return <Loading />;
 }

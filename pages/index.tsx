@@ -14,10 +14,10 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
+      <AnimatedHeading className={styles.animatedHeader} />
+      <AsyncCanvasBackgroundAnimation />
       <main className={styles.main}>
-        <AnimatedHeading className={styles.animatedHeader} />
         <div className={styles.spacer} />
-        <AsyncCanvasBackgroundAnimation />
 
         <h1 className={styles.title}>Ethan's Portfolio</h1>
 
