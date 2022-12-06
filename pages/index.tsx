@@ -1,10 +1,9 @@
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
+import AnimatedHeading from "../components/animatedHeading";
 import AsyncCanvasBackgroundAnimation from "../components/asyncCanvasBackgroundEffect";
-import CanvasBackgroundEffect from "../components/canvasBackgroundEffect";
-import { ShowWindowDimensions } from "../hooks/windowSize.hook";
-import styles from "../styles/Home.module.css";
+import styles from "../styles/index.module.css";
 
 export default function Home() {
   return (
@@ -16,7 +15,10 @@ export default function Home() {
       </Head>
 
       <main className={styles.main}>
+        <AnimatedHeading className={styles.animatedHeader} />
+        <div className={styles.spacer} />
         <AsyncCanvasBackgroundAnimation />
+
         <h1 className={styles.title}>Ethan's Portfolio</h1>
 
         <p className={styles.description}>

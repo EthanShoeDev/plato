@@ -1,8 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import * as THREE from "three";
 import styles from "../styles/backgroundCanvas.module.css";
-import Loading from "./loading";
-import { useIsSSR } from "../hooks/ssr.hook";
 import useScrollPosition from "../hooks/useScrollPosition.hook";
 import { useWindowSize } from "../hooks/windowSize.hook";
 import Stats from "three/examples/jsm/libs/stats.module";
@@ -59,7 +57,7 @@ class AnimationState {
         color: 0x597a59,
       }),
     ];
-    this.rays = Array.from({ length: 300 }, (v, i) => {
+    this.rays = Array.from({ length: 400 }, (v, i) => {
       const ray = new THREE.Mesh(
         geometry,
         materials[Math.floor(materials.length * Math.random())]
@@ -67,6 +65,7 @@ class AnimationState {
       this.scene.add(ray);
       ray.rotation.x = (90 * Math.PI) / 180;
       this.setRayToRandomStart(ray);
+      ray.position.z = this.randRange(600, -300);
       return ray;
     });
 
@@ -81,13 +80,13 @@ class AnimationState {
     this.animate();
   }
 
-  setRayToRandomStart(ray: THREE.Mesh) {
-    const randRange = (range: number, center = 0) =>
-      Math.random() * range - range / 2 + center;
+  randRange = (range: number, center = 0) =>
+    Math.random() * range - range / 2 + center;
 
-    ray.position.x = randRange(180);
-    ray.position.y = randRange(180);
-    ray.position.z = randRange(150, -275);
+  setRayToRandomStart(ray: THREE.Mesh) {
+    ray.position.x = this.randRange(180);
+    ray.position.y = this.randRange(180);
+    ray.position.z = this.randRange(100, -500);
   }
 
   updateSize(size: Size) {
@@ -118,29 +117,44 @@ class AnimationState {
 
 const CanvasBackgroundAnimation = () => {
   const scrollPosition = useScrollPosition();
+  const windowSize = useWindowSize();
+
   const containerRef = useRef<HTMLDivElement | null>(null);
   const animationState = useRef<AnimationState | null>(null);
-  const windowSize = useWindowSize();
 
   useEffect(
     () =>
       animationState.current?.updateSize({
         height: windowSize.height,
-        width: document.body.clientWidth,
+        width: containerRef.current!.clientWidth,
       }),
     [windowSize]
   );
   useEffect(() => {
     animationState.current?.setScrollPos(scrollPosition);
+    console.log(scrollPosition);
   }, [scrollPosition]);
 
   useEffect(() => {
-    if (!containerRef.current) return;
     animationState.current = new AnimationState(containerRef.current!);
     return animationState.current.dispose;
   }, []);
 
-  return <div ref={containerRef} className={styles.backgroundCanvas} />;
+  const switchToStaticPos = scrollPosition > windowSize.height;
+
+  return (
+    <>
+      <div
+        className={switchToStaticPos ? styles.spacerStatic : styles.spacer}
+      />
+      <div
+        ref={containerRef}
+        className={`${styles.backgroundCanvas} ${
+          switchToStaticPos && styles.backgroundCanvasAbsolute
+        }`}
+      />
+    </>
+  );
 };
 
 export default CanvasBackgroundAnimation;
