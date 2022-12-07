@@ -7,7 +7,7 @@ import styles from "../styles/index.module.css";
 
 export default function Home() {
   return (
-    <div className={styles.container}>
+    <>
       <Head>
         <title>Ethan Portfolio</title>
         <meta name="description" content="Code samples and demos" />
@@ -71,6 +71,6 @@ export default function Home() {
           </span>
         </a>
       </footer>
-    </div>
+    </>
   );
 }

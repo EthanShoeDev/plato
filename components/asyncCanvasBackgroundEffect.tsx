@@ -12,16 +12,20 @@ const DynamicCanvasBackgroundAnimation = dynamic(
   }
 );
 
+const FallBackLoading = () => (
+  <>
+    <Loading className={styles.loading} />
+    <div className={styles.spacer} />
+  </>
+);
+
 const AsyncCanvasBackgroundAnimation = () => {
   const isSSR = useIsSSR();
 
   return isSSR ? (
-    <>
-      <Loading />
-      <div className={styles.spacer} />
-    </>
+    <FallBackLoading />
   ) : (
-    <Suspense fallback={<Loading />}>
+    <Suspense fallback={<FallBackLoading />}>
       <DynamicCanvasBackgroundAnimation />
     </Suspense>
   );

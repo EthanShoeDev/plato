@@ -1,156 +1,114 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useMemo, useLayoutEffect } from "react";
 import * as THREE from "three";
-import styles from "../styles/backgroundCanvas.module.css";
 import useScrollPosition from "../hooks/useScrollPosition.hook";
 import { useWindowSize } from "../hooks/windowSize.hook";
-import Stats from "three/examples/jsm/libs/stats.module";
+import { Canvas, useFrame } from "@react-three/fiber";
+import niceColors from "nice-color-palettes";
+import styles from "../styles/backgroundCanvas.module.css";
 
-type Size = { height: number; width: number };
-class AnimationState {
-  scene: THREE.Scene;
-  camera: THREE.PerspectiveCamera;
-  renderer: THREE.WebGLRenderer;
-  rays: THREE.Mesh[];
-  dispose: () => void;
-  scrollPosition = 0;
-  disposed = false;
-  stats: Stats;
+const randRange = (range: number, center = 0) =>
+  Math.random() * range - range / 2 + center;
+function setRayToRandomStart(position: THREE.Vector3) {
+  // position.x = 0;
+  // position.y = 0;
+  // position.z = 0;
+  position.x = randRange(180);
+  position.y = randRange(180);
+  position.z = randRange(100, -500);
+}
 
-  constructor(readonly containerRef: HTMLDivElement, size?: Size) {
-    // Setup scene
-    if (!size)
-      size = {
-        // height: window.innerHeight + 300,
-        height: containerRef.clientHeight,
-        width: containerRef.clientWidth,
-      };
-    this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0x111524);
-    this.scene.fog = new THREE.Fog(this.scene.background, 50, 300);
-    this.camera = new THREE.PerspectiveCamera(
-      50,
-      size.width / size.height,
-      0.1,
-      1000
-    );
-    this.renderer = new THREE.WebGLRenderer({
-      antialias: true,
-    });
-    this.renderer.setSize(size.width, size.height);
-    containerRef.appendChild(this.renderer.domElement);
-    this.stats = Stats();
-    containerRef.appendChild(this.stats.dom);
+const tempObject = new THREE.Object3D();
+const tempColor = new THREE.Color();
+function Rays({ count = 100000 }) {
+  const data = useMemo(
+    () =>
+      Array.from({ length: count }, () => ({
+        color: niceColors[3][Math.floor(Math.random() * 5)],
+        scale: 1,
+      })),
+    []
+  );
+  const scrollPosition = useScrollPosition();
+  const ref = useRef<THREE.InstancedMesh>(null!);
+  const colorArray = useMemo(
+    () =>
+      Float32Array.from(
+        new Array(count)
+          .fill(null)
+          .flatMap((_, i) => tempColor.set(data[i].color).toArray())
+      ),
+    []
+  );
 
-    // Setup cube
-    const geometry = new THREE.CylinderGeometry(0.3, 0.3, 1, 20);
-    const materials = [
-      new THREE.MeshBasicMaterial({
-        color: 0xb19166,
-      }),
-      new THREE.MeshBasicMaterial({
-        color: 0x878a92,
-      }),
-      new THREE.MeshBasicMaterial({
-        color: 0x59558d,
-      }),
-      new THREE.MeshBasicMaterial({
-        color: 0x597a59,
-      }),
-    ];
-    this.rays = Array.from({ length: 400 }, (v, i) => {
-      const ray = new THREE.Mesh(
-        geometry,
-        materials[Math.floor(materials.length * Math.random())]
-      );
-      this.scene.add(ray);
-      ray.rotation.x = (90 * Math.PI) / 180;
-      this.setRayToRandomStart(ray);
-      ray.position.z = this.randRange(600, -300);
-      return ray;
-    });
+  useLayoutEffect(() => {
+    for (let id = 0; id < count; id++) {
+      ref.current.getMatrixAt(id, tempObject.matrix);
+      tempObject.position.setFromMatrixPosition(tempObject.matrix);
+      tempObject.rotation.x = (90 * Math.PI) / 180;
+      setRayToRandomStart(tempObject.position);
+      tempObject.position.z = randRange(600, -300);
 
-    this.dispose = () => {
-      this.disposed = true;
-      containerRef.removeChild(this.renderer.domElement);
-      containerRef.removeChild(this.stats.domElement);
-      geometry.dispose();
-      materials.forEach((material) => material.dispose());
-    };
+      tempObject.updateMatrix();
+      ref.current.setMatrixAt(id, tempObject.matrix);
+    }
+    ref.current.instanceMatrix.needsUpdate = true;
+  }, []);
 
-    this.animate();
-  }
+  useFrame((_, delta) => {
+    for (let id = 0; id < count; id++) {
+      ref.current.getMatrixAt(id, tempObject.matrix);
+      tempObject.position.setFromMatrixPosition(tempObject.matrix);
+      tempObject.position.z += (scrollPosition * 1 + 5) * delta;
 
-  randRange = (range: number, center = 0) =>
-    Math.random() * range - range / 2 + center;
+      if (tempObject.position.z >= 5) {
+        setRayToRandomStart(tempObject.position);
+      }
 
-  setRayToRandomStart(ray: THREE.Mesh) {
-    ray.position.x = this.randRange(180);
-    ray.position.y = this.randRange(180);
-    ray.position.z = this.randRange(100, -500);
-  }
+      tempObject.updateMatrix();
+      ref.current.setMatrixAt(id, tempObject.matrix);
+    }
 
-  updateSize(size: Size) {
-    this.camera.aspect = size.width / size.height;
-    this.camera.updateProjectionMatrix();
-    // this.renderer.setSize(size.width, size.height + 300);
-    this.renderer.setSize(size.width, size.height);
-  }
+    ref.current.instanceMatrix.needsUpdate = true;
+  });
 
-  setScrollPos(val: number) {
-    this.scrollPosition = val;
-  }
-
-  animate() {
-    if (!this.disposed) requestAnimationFrame(this.animate.bind(this));
-
-    this.rays.forEach((ray) => {
-      ray.rotation.y += 0.01;
-      ray.position.z += 0.01 * this.scrollPosition + 0.05;
-
-      if (ray.position.z >= 5) this.setRayToRandomStart(ray);
-    });
-
-    this.renderer.render(this.scene, this.camera);
-    this.stats.update();
-  }
+  return (
+    <instancedMesh ref={ref} args={[undefined, undefined, count]}>
+      <cylinderGeometry args={[0.3, 0.3, 1, 20]}>
+        <instancedBufferAttribute
+          attach="attributes-color"
+          args={[colorArray, 3]}
+        />
+      </cylinderGeometry>
+      <meshBasicMaterial toneMapped={false} vertexColors />
+    </instancedMesh>
+  );
 }
 
 const CanvasBackgroundAnimation = () => {
-  const scrollPosition = useScrollPosition();
   const windowSize = useWindowSize();
-
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const animationState = useRef<AnimationState | null>(null);
-
-  useEffect(
-    () =>
-      animationState.current?.updateSize({
-        height: windowSize.height,
-        width: containerRef.current!.clientWidth,
-      }),
-    [windowSize]
-  );
-  useEffect(() => {
-    animationState.current?.setScrollPos(scrollPosition);
-  }, [scrollPosition]);
-
-  useEffect(() => {
-    animationState.current = new AnimationState(containerRef.current!);
-    return animationState.current.dispose;
-  }, []);
+  const scrollPosition = useScrollPosition();
 
   const switchToStaticPos = scrollPosition > windowSize.height;
 
   return (
     <>
-      {!switchToStaticPos && <div className={styles.spacerStatic} />}
-      <div className={styles.spacerStatic} />
       <div
-        ref={containerRef}
+        className={switchToStaticPos ? styles.spacerStatic : styles.spacer}
+      />
+      <div
         className={`${styles.backgroundCanvas} ${
           switchToStaticPos && styles.backgroundCanvasAbsolute
         }`}
-      />
+      >
+        <Canvas
+          gl={{ antialias: true }}
+          camera={{ fov: 50, near: 0.1, far: 1000 }}
+        >
+          <color attach="background" args={["#111524"]} />
+          <Rays count={400} />
+          <fog attach="fog" color="#111524" near={50} far={400} />
+        </Canvas>
+      </div>
     </>
   );
 };

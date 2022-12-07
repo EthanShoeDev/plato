@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
 import styles from "../styles/loading.module.css";
 
-const Loading = () => {
+const Loading = ({ className }: { className?: string }) => {
   return (
-    <div>
+    <div className={className}>
       <div className={styles.spinner}>
         <div className={styles.bounce1} />
         <div className={styles.bounce2} />
