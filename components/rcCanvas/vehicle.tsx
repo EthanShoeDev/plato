@@ -10,6 +10,8 @@ import {
   Vector3,
   Raycaster,
   Plane,
+  Quaternion,
+  Euler,
 } from "three";
 
 import { Chassis } from "./chassis";
@@ -113,16 +115,19 @@ function Vehicle({
     useRef<Group>(null)
   );
 
-  const carRotation = useRef([...rotation]);
+  // const carRotation = useRef([...rotation]);
   const carPosition = useRef([...position]);
-  const carAngularVelocity = useRef([0, 0, 0]);
+  // const carAngularVelocity = useRef([0, 0, 0]);
   useEffect(() => {
     vehicleApi.sliding.subscribe((v) => v && console.log("sliding", v));
-    chassisApi.rotation.subscribe((r) => (carRotation.current = r));
+    // chassisApi.rotation.subscribe((r) => (carRotation.current = r));
     chassisApi.position.subscribe((p) => (carPosition.current = p));
-    chassisApi.angularVelocity.subscribe(
-      (a) => (carAngularVelocity.current = a)
-    );
+    chassisApi.linearFactor.set(0, 1, 0);
+    chassisApi.angularFactor.set(0, 0, 1);
+
+    // chassisApi.angularVelocity.subscribe(
+    //   (a) => (carAngularVelocity.current = a)
+    // );
   }, []);
 
   const { camera } = useThree();
@@ -130,20 +135,13 @@ function Vehicle({
   const mouseRay = useMemo(() => new Raycaster(), []);
 
   useFrame((state) => {
-    const { backward, brake, forward, left, reset, right } = controls.current;
+    const { backward, brake, forward, reset } = controls.current;
 
     if (controllable) {
       for (let e = 2; e < 4; e++) {
         vehicleApi.applyEngineForce(
           forward || backward ? force * (forward && !backward ? -1 : 1) : 0,
           2
-        );
-      }
-
-      for (let s = 0; s < 2; s++) {
-        vehicleApi.setSteeringValue(
-          left || right ? steer * (left && !right ? 1 : -1) : 0,
-          s
         );
       }
 
@@ -160,7 +158,7 @@ function Vehicle({
       const torque = mouseXYPlaneIndicator
         .current!.position.clone()
         .sub(new Vector3(...carPosition.current))
-        .multiplyScalar(1999);
+        .multiplyScalar(9999);
 
       // chassisApi.applyTorque([torque.x, torque.y, torque.z]);
     }
@@ -171,11 +169,6 @@ function Vehicle({
       chassisApi.angularVelocity.set(...angularVelocity);
       chassisApi.rotation.set(...rotation);
     }
-
-    const currentAngularVelocity = carAngularVelocity.current;
-    chassisApi.angularVelocity.set(0, 0, currentAngularVelocity[2]);
-    // chassisApi.rotation.set(0, rotation[1] + rotation[1], rotation[1]);
-    //TODO
   });
 
   return (

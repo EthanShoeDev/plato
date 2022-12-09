@@ -11,7 +11,10 @@ import {
   SphereArgs,
   SphereProps,
   Triplet,
+  useBox,
   useCylinder,
+  useHingeConstraint,
+  useLockConstraint,
   usePlane,
   useSphere,
 } from "@react-three/cannon";
@@ -35,24 +38,6 @@ function Plane(props: PlaneProps) {
   );
 }
 
-function Pillar(props: CylinderProps) {
-  const args: CylinderArgs = [0.7, 0.7, 5, 16];
-  const [ref] = useCylinder(
-    () => ({
-      args,
-      mass: 10,
-      ...props,
-    }),
-    useRef<Mesh>(null)
-  );
-  return (
-    <mesh ref={ref}>
-      <cylinderBufferGeometry args={args} />
-      <meshBasicMaterial />
-    </mesh>
-  );
-}
-
 function Ball(props: SphereProps & { radius: number; mass: number }) {
   const controls = useControls();
   const initialPosition: Triplet = useMemo(
@@ -60,43 +45,60 @@ function Ball(props: SphereProps & { radius: number; mass: number }) {
     []
   );
 
-  const args: SphereArgs = [props.radius];
   const [ref, sphereApi] = useSphere(
     () => ({
-      args,
+      args: [props.radius],
       ...props,
     }),
     useRef<Mesh>(null)
   );
 
-  const ballPosition = useRef<Triplet>([...initialPosition]);
-  const ballVelocity = useRef<Triplet>([0, 0, 0]);
+  // const [dummyRef, dummyApi] = useBox(
+  //   () => ({
+  //     args: [1.7, 1, 4],
+  //     position: [0, 5, 0],
+  //   }),
+  //   useRef<Mesh>(null)
+  // );
+
+  // Use a lock constraint to prevent the ball from moving in the Z direction
+  // useLockConstraint(ref, dummyRef, {
+  //   // localOffsetB: new THREE.Vector3(0, 0, 1),
+  //   // localAngleB: new THREE.Euler(0, 0, 0),
+  // });
+
+  // Use a hinge constraint to prevent the ball from rotating around the Z axis
+  // useHingeConstraint(ref, dummyRef, {
+  //   pivotA: [0, 0, 1],
+  //   axisA: [0, 0, 1],
+  //   pivotB: [0, 0, 1],
+  //   axisB: [0, 0, 1],
+  // });
+
+  // const ballPosition = useRef<Triplet>([...initialPosition]);
+  // const ballVelocity = useRef<Triplet>([0, 0, 0]);
 
   useEffect(() => {
-    sphereApi?.position?.subscribe((p) => (ballPosition.current = p));
-    sphereApi?.velocity?.subscribe((v) => (ballVelocity.current = v));
+    sphereApi.angularFactor.set(0, 0, 1);
+    sphereApi.linearFactor.set(1, 1, 0);
+    // sphereApi.
+    // sphereApi?.position?.subscribe((p) => (ballPosition.current = p));
+    // sphereApi?.velocity?.subscribe((v) => (ballVelocity.current = v));
   }, []);
 
   useFrame(() => {
     const { reset } = controls.current;
-    const currentPosition = ballPosition.current ?? initialPosition;
-    const currentVelocity = ballVelocity.current!;
-
-    // if(currentVelocity[2] > 0) {
-    //   sphereApi.applyForce()
-    // }
-    sphereApi.velocity.set(currentVelocity[0], currentVelocity[1], 0);
 
     if (reset) {
       sphereApi.position.set(...initialPosition);
       sphereApi.velocity.set(0, 0, 0);
-      // sphereApi.applyLocalImpulse([0, 1, 0], [0, 0, 0]);
+      sphereApi.angularVelocity.set(0, 0, 0);
     }
   });
 
   return (
     <mesh ref={ref}>
-      <sphereGeometry args={args} />
+      <sphereGeometry args={[props.radius]} />
       <meshStandardMaterial color={"red"} />
     </mesh>
   );
@@ -123,7 +125,7 @@ const RCCanvas = () => {
             <Plane rotation={[-Math.PI / 2, 0, 0]} userData={{ id: "floor" }} />
             <Vehicle
               position={[10, 5, 0]}
-              rotation={[Math.PI / 2, -Math.PI / 2, 0]}
+              rotation={[0, -Math.PI / 2, 0]}
               angularVelocity={[0, 0.5, 0]}
               controllable={true}
             />
