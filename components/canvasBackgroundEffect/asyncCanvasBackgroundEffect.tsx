@@ -1,8 +1,8 @@
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
-import { useIsSSR } from "../hooks/ssr.hook";
-import Loading from "./loading";
-import styles from "../styles/backgroundCanvas.module.css";
+import { useIsSSR } from "../../hooks/ssr.hook";
+import Loading from "../loading";
+import styles from "../../styles/backgroundCanvas.module.css";
 
 const DynamicCanvasBackgroundAnimation = dynamic(
   () => import("./canvasBackgroundEffect"),

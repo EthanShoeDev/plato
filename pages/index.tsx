@@ -2,7 +2,7 @@ import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import AnimatedHeading from "../components/animatedHeading";
-import AsyncCanvasBackgroundAnimation from "../components/asyncCanvasBackgroundEffect";
+import AsyncCanvasBackgroundAnimation from "../components/canvasBackgroundEffect/asyncCanvasBackgroundEffect";
 import styles from "../styles/index.module.css";
 
 export default function Home() {
@@ -27,10 +27,10 @@ export default function Home() {
         </p>
 
         <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h2>Documentation &rarr;</h2>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
+          <Link href="/temp" className={styles.card}>
+            <h2>RC Canvas &rarr;</h2>
+            <p>3d physics game</p>
+          </Link>
 
           <a href="https://nextjs.org/learn" className={styles.card}>
             <h2>Learn &rarr;</h2>

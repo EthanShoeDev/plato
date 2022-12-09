@@ -1,17 +1,14 @@
 import React, { useRef, useEffect, useMemo, useLayoutEffect } from "react";
 import * as THREE from "three";
-import useScrollPosition from "../hooks/useScrollPosition.hook";
-import { useWindowSize } from "../hooks/windowSize.hook";
+import useScrollPosition from "../../hooks/useScrollPosition.hook";
+import { useWindowSize } from "../../hooks/windowSize.hook";
 import { Canvas, useFrame } from "@react-three/fiber";
 import niceColors from "nice-color-palettes";
-import styles from "../styles/backgroundCanvas.module.css";
+import styles from "../../styles/backgroundCanvas.module.css";
 
 const randRange = (range: number, center = 0) =>
   Math.random() * range - range / 2 + center;
 function setRayToRandomStart(position: THREE.Vector3) {
-  // position.x = 0;
-  // position.y = 0;
-  // position.z = 0;
   position.x = randRange(180);
   position.y = randRange(180);
   position.z = randRange(100, -500);
@@ -73,12 +70,12 @@ function Rays({ count = 100000 }) {
 
   return (
     <instancedMesh ref={ref} args={[undefined, undefined, count]}>
-      <cylinderGeometry args={[0.3, 0.3, 1, 20]}>
+      <cylinderBufferGeometry args={[0.3, 0.3, 1, 20]}>
         <instancedBufferAttribute
           attach="attributes-color"
           args={[colorArray, 3]}
         />
-      </cylinderGeometry>
+      </cylinderBufferGeometry>
       <meshBasicMaterial toneMapped={false} vertexColors />
     </instancedMesh>
   );
