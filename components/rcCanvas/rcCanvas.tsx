@@ -32,7 +32,7 @@ function Plane(props: PlaneProps) {
     <group ref={ref}>
       <mesh receiveShadow>
         <planeGeometry args={[100, 100]} />
-        <meshBasicMaterial color="#303030" />
+        <meshStandardMaterial color="#303030" />
       </mesh>
     </group>
   );
@@ -53,37 +53,9 @@ function Ball(props: SphereProps & { radius: number; mass: number }) {
     useRef<Mesh>(null)
   );
 
-  // const [dummyRef, dummyApi] = useBox(
-  //   () => ({
-  //     args: [1.7, 1, 4],
-  //     position: [0, 5, 0],
-  //   }),
-  //   useRef<Mesh>(null)
-  // );
-
-  // Use a lock constraint to prevent the ball from moving in the Z direction
-  // useLockConstraint(ref, dummyRef, {
-  //   // localOffsetB: new THREE.Vector3(0, 0, 1),
-  //   // localAngleB: new THREE.Euler(0, 0, 0),
-  // });
-
-  // Use a hinge constraint to prevent the ball from rotating around the Z axis
-  // useHingeConstraint(ref, dummyRef, {
-  //   pivotA: [0, 0, 1],
-  //   axisA: [0, 0, 1],
-  //   pivotB: [0, 0, 1],
-  //   axisB: [0, 0, 1],
-  // });
-
-  // const ballPosition = useRef<Triplet>([...initialPosition]);
-  // const ballVelocity = useRef<Triplet>([0, 0, 0]);
-
   useEffect(() => {
-    sphereApi.angularFactor.set(0, 0, 1);
-    sphereApi.linearFactor.set(1, 1, 0);
-    // sphereApi.
-    // sphereApi?.position?.subscribe((p) => (ballPosition.current = p));
-    // sphereApi?.velocity?.subscribe((v) => (ballVelocity.current = v));
+    sphereApi.angularFactor.set(1, 0, 0);
+    sphereApi.linearFactor.set(0, 1, 1);
   }, []);
 
   useFrame(() => {
@@ -99,7 +71,7 @@ function Ball(props: SphereProps & { radius: number; mass: number }) {
   return (
     <mesh ref={ref}>
       <sphereGeometry args={[props.radius]} />
-      <meshStandardMaterial color={"red"} />
+      <meshStandardMaterial color={"red"} metalness={3} />
     </mesh>
   );
 }
@@ -110,38 +82,55 @@ const RCCanvas = () => {
   return (
     <div className={styles.backgroundCanvas}>
       <Canvas gl={{ antialias: true }} shadows>
-        <PerspectiveCamera makeDefault fov={70} position={[0, 5, 20]} />
+        <PerspectiveCamera makeDefault fov={70} position={[-50, 10, 0]} />
         <OrbitControls />
         <Stats />
-        <ambientLight intensity={0.5} />
+        <ambientLight intensity={0.03} />
+        <spotLight intensity={0.5} position={[0, 50, 0]} />
         <Physics
           broadphase="Naive"
           defaultContactMaterial={{
             contactEquationRelaxation: 4,
             friction: 1e-3,
           }}
+          stepSize={1 / 120}
         >
-          <Debug>
+          <ToggledDebug>
             <Plane rotation={[-Math.PI / 2, 0, 0]} userData={{ id: "floor" }} />
+            <Plane
+              rotation={[Math.PI / 2, 0, 0]}
+              position={[0, 30, 0]}
+              userData={{ id: "ceiling" }}
+            />
+            <Plane
+              rotation={[0, 0, 0]}
+              position={[0, 10, -30]}
+              userData={{ id: "wall-1" }}
+            />
+            <Plane
+              rotation={[Math.PI, 0, 0]}
+              position={[0, 10, 30]}
+              userData={{ id: "wall-2" }}
+            />
             <Vehicle
-              position={[10, 5, 0]}
-              rotation={[0, -Math.PI / 2, 0]}
+              position={[0, 3, 10]}
+              rotation={[0, Math.PI, 0]}
               angularVelocity={[0, 0.5, 0]}
               controllable={true}
             />
             <Vehicle
-              position={[-10, 3, 0]}
-              rotation={[0, Math.PI / 2, 0]}
+              position={[0, 3, -10]}
+              rotation={[0, 0, 0]}
               angularVelocity={[0, 0.5, 0]}
               controllable={false}
             />
             <Ball
               position={[0, 2.5, 0]}
               userData={{ id: "ball-1" }}
-              radius={1.5}
-              mass={1}
+              radius={2.5}
+              mass={0.1}
             />
-          </Debug>
+          </ToggledDebug>
         </Physics>
         <color attach="background" args={["#303030"]} />
       </Canvas>

@@ -32,7 +32,7 @@ export type VehicleProps = Required<
   controllable?: boolean;
 };
 
-const XYPlane = new Plane(new Vector3(0, 0, 1), 0);
+const XZPlane = new Plane(new Vector3(1, 0, 0), 0);
 
 function Vehicle({
   angularVelocity,
@@ -64,11 +64,11 @@ function Vehicle({
     dampingRelaxation: 10,
     directionLocal: [0, -1, 0], // set to same as Physics Gravity
     frictionSlip: 2,
-    maxSuspensionForce: 1e4,
-    maxSuspensionTravel: 0.3,
+    maxSuspensionForce: 1e6,
+    maxSuspensionTravel: 0.4,
     radius,
     suspensionRestLength: 0.3,
-    suspensionStiffness: 30,
+    suspensionStiffness: 200,
     useCustomSlidingRotationalSpeed: true,
   };
 
@@ -98,7 +98,7 @@ function Vehicle({
       allowSleep: false,
       angularVelocity,
       args: [1.7, 1, 4],
-      mass: 500,
+      mass: 1,
       onCollide: (e) => console.log("bonk", e.body.userData),
       position,
       rotation,
@@ -115,15 +115,16 @@ function Vehicle({
     useRef<Group>(null)
   );
 
-  // const carRotation = useRef([...rotation]);
+  const carRotation = useRef([...rotation]);
   const carPosition = useRef([...position]);
   // const carAngularVelocity = useRef([0, 0, 0]);
   useEffect(() => {
     vehicleApi.sliding.subscribe((v) => v && console.log("sliding", v));
-    // chassisApi.rotation.subscribe((r) => (carRotation.current = r));
+    chassisApi.rotation.subscribe((r) => (carRotation.current = r));
     chassisApi.position.subscribe((p) => (carPosition.current = p));
-    chassisApi.linearFactor.set(0, 1, 0);
-    chassisApi.angularFactor.set(0, 0, 1);
+    chassisApi.linearFactor.set(0, 1, 1);
+    chassisApi.angularFactor.set(1, 0, 0);
+    chassisApi.angularDamping.set(0.999);
 
     // chassisApi.angularVelocity.subscribe(
     //   (a) => (carAngularVelocity.current = a)
@@ -131,36 +132,57 @@ function Vehicle({
   }, []);
 
   const { camera } = useThree();
-  const mouseXYPlaneIndicator = useRef<Mesh>(null!);
+  const mouseXZPlaneIndicator = useRef<Mesh>(null!);
   const mouseRay = useMemo(() => new Raycaster(), []);
 
-  useFrame((state) => {
+  useFrame((state, delta) => {
     const { backward, brake, forward, reset } = controls.current;
 
     if (controllable) {
-      for (let e = 2; e < 4; e++) {
+      for (let e = 1; e < 4; e++) {
         vehicleApi.applyEngineForce(
-          forward || backward ? force * (forward && !backward ? -1 : 1) : 0,
+          forward || backward ? force * (forward && !backward ? -4 : 4) : 0,
           2
         );
       }
 
-      for (let b = 2; b < 4; b++) {
-        vehicleApi.setBrake(brake ? maxBrake : 0, b);
-      }
+      // for (let b = 2; b < 4; b++) {
+      //   vehicleApi.setBrake(brake ? maxBrake : 0, b);
+      // }
 
       mouseRay.setFromCamera(state.mouse, camera);
       mouseRay.ray.intersectPlane(
-        XYPlane,
-        mouseXYPlaneIndicator.current.position
+        XZPlane,
+        mouseXZPlaneIndicator.current.position
       );
 
-      const torque = mouseXYPlaneIndicator
+      const vecToPointer = mouseXZPlaneIndicator
         .current!.position.clone()
-        .sub(new Vector3(...carPosition.current))
-        .multiplyScalar(9999);
+        .sub(new Vector3(...carPosition.current));
 
-      // chassisApi.applyTorque([torque.x, torque.y, torque.z]);
+      const forwardVec = new Vector3(0, 0, 1);
+      forwardVec.applyEuler(new Euler(...carRotation.current)); //apply the orientation of
+
+      const angleToPointer = forwardVec.angleTo(vecToPointer);
+      const cross = forwardVec.cross(vecToPointer);
+
+      if (brake) {
+        chassisApi.applyLocalForce([0, 0, 99], [0, 0, 0]);
+      }
+
+      // chassisApi.rotation.set(angleToPointer, rotation[1], rotation[2]);
+      // console.log(cross.x);
+      //if the y-coordinate of the cross product vector is positive, the angle between the forward vector and the vecToPointer vector is positive
+      //if the y-coordinate of the cross product vector is negative, the angle between the forward vector and the vecToPointer vector is negative
+      if (cross.x > 0) {
+        //the angle is positive, apply a positive torque to the chassis
+        chassisApi.applyTorque([angleToPointer * 6000 * delta, 0, 0]);
+        // chassisApi.angularVelocity.set(angleToPointer * 20, 0, 0);
+      } else if (cross.x < 0) {
+        //the angle is negative, apply a negative torque to the chassis
+        chassisApi.applyTorque([-angleToPointer * 6000 * delta, 0, 0]);
+        // chassisApi.angularVelocity.set(-angleToPointer * 20, 0, 0);
+      }
     }
 
     if (reset) {
@@ -174,7 +196,7 @@ function Vehicle({
   return (
     <group ref={vehicle} position={[0, -0.4, 0]}>
       {controllable ? (
-        <mesh ref={mouseXYPlaneIndicator}>
+        <mesh ref={mouseXZPlaneIndicator}>
           <meshBasicMaterial color={"pink"} />
           <sphereGeometry args={[0.5]} />
         </mesh>

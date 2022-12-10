@@ -60,15 +60,34 @@ export const Chassis = forwardRef<Mesh>((_, ref) => {
   return (
     <mesh ref={ref}>
       <group position={[0, -0.6, 0]}>
-        <axesHelper position={[0, 2, 0]} />
-
-        <mesh geometry={nodes.chassis_1.geometry} />
-        <mesh geometry={nodes.chassis_2.geometry} />
-        <mesh geometry={nodes.chassis_3.geometry} />
-        <mesh geometry={nodes.chassis_4.geometry} />
-        <mesh geometry={nodes.chassis_5.geometry} />
-        <mesh geometry={nodes.chassis_6.geometry} />
-        <mesh geometry={nodes.chassis_7.geometry} />
+        <mesh
+          material={materials["Orange plastic"]}
+          geometry={nodes.chassis_1.geometry}
+        />
+        <mesh
+          material={materials["Orange plastic"]}
+          geometry={nodes.chassis_2.geometry}
+        />
+        <mesh
+          material={materials["Orange plastic"]}
+          geometry={nodes.chassis_3.geometry}
+        />
+        <mesh
+          material={materials["Orange plastic"]}
+          geometry={nodes.chassis_4.geometry}
+        />
+        <mesh
+          material={materials["Orange plastic"]}
+          geometry={nodes.chassis_5.geometry}
+        />
+        <mesh
+          material={materials["Orange plastic"]}
+          geometry={nodes.chassis_6.geometry}
+        />
+        <mesh
+          material={materials["Orange plastic"]}
+          geometry={nodes.chassis_7.geometry}
+        />
         <mesh geometry={nodes.chassis_8.geometry} />
         <mesh
           material={materials.Rubber}
