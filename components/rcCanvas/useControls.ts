@@ -24,7 +24,7 @@ function useKeyControls(
 }
 
 const keyControlMap = {
-  " ": "brake",
+  " ": "boost",
   ArrowDown: "backward",
   ArrowLeft: "left",
   ArrowRight: "right",
@@ -34,6 +34,7 @@ const keyControlMap = {
   r: "reset",
   s: "backward",
   w: "forward",
+  c: "spin",
 } as const;
 
 type KeyCode = keyof typeof keyControlMap;
@@ -45,11 +46,12 @@ const isKeyCode = (v: unknown): v is KeyCode => keyCodes.includes(v as KeyCode);
 export function useControls() {
   const controls = useRef<Record<GameControl, boolean>>({
     backward: false,
-    brake: false,
+    boost: false,
     forward: false,
     left: false,
     reset: false,
     right: false,
+    spin: false,
   });
 
   useKeyControls(controls, keyControlMap);

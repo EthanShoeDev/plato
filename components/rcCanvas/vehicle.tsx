@@ -99,7 +99,7 @@ function Vehicle({
       angularVelocity,
       args: [1.7, 1, 4],
       mass: 1,
-      onCollide: (e) => console.log("bonk", e.body.userData),
+      // onCollide: (e) => console.log("bonk", e.body.userData),
       position,
       rotation,
     }),
@@ -117,11 +117,13 @@ function Vehicle({
 
   const carRotation = useRef([...rotation]);
   const carPosition = useRef([...position]);
+  const carVelocity = useRef([0, 0, 0]);
   // const carAngularVelocity = useRef([0, 0, 0]);
   useEffect(() => {
     vehicleApi.sliding.subscribe((v) => v && console.log("sliding", v));
     chassisApi.rotation.subscribe((r) => (carRotation.current = r));
     chassisApi.position.subscribe((p) => (carPosition.current = p));
+    chassisApi.velocity.subscribe((v) => (carVelocity.current = v));
     chassisApi.linearFactor.set(0, 1, 1);
     chassisApi.angularFactor.set(1, 0, 0);
     chassisApi.angularDamping.set(0.999);
@@ -136,7 +138,7 @@ function Vehicle({
   const mouseRay = useMemo(() => new Raycaster(), []);
 
   useFrame((state, delta) => {
-    const { backward, brake, forward, reset } = controls.current;
+    const { backward, boost, forward, reset, spin } = controls.current;
 
     if (controllable) {
       for (let e = 1; e < 4; e++) {
@@ -166,23 +168,21 @@ function Vehicle({
       const angleToPointer = forwardVec.angleTo(vecToPointer);
       const cross = forwardVec.cross(vecToPointer);
 
-      if (brake) {
+      if (boost) {
         chassisApi.applyLocalForce([0, 0, 99], [0, 0, 0]);
       }
 
-      // chassisApi.rotation.set(angleToPointer, rotation[1], rotation[2]);
-      // console.log(cross.x);
-      //if the y-coordinate of the cross product vector is positive, the angle between the forward vector and the vecToPointer vector is positive
-      //if the y-coordinate of the cross product vector is negative, the angle between the forward vector and the vecToPointer vector is negative
-      if (cross.x > 0) {
-        //the angle is positive, apply a positive torque to the chassis
-        chassisApi.applyTorque([angleToPointer * 6000 * delta, 0, 0]);
-        // chassisApi.angularVelocity.set(angleToPointer * 20, 0, 0);
-      } else if (cross.x < 0) {
-        //the angle is negative, apply a negative torque to the chassis
-        chassisApi.applyTorque([-angleToPointer * 6000 * delta, 0, 0]);
-        // chassisApi.angularVelocity.set(-angleToPointer * 20, 0, 0);
+      if (spin) {
+        chassisApi.rotation.set(
+          carRotation.current[0],
+          carRotation.current[1],
+          carRotation.current[2] + Math.PI
+        );
       }
+
+      const direction = cross.x > 0 ? 1 : -1;
+      const torque = angleToPointer * 6000 * delta;
+      chassisApi.applyTorque([direction * torque, 0, 0]);
     }
 
     if (reset) {
@@ -190,6 +190,21 @@ function Vehicle({
       chassisApi.velocity.set(0, 0, 0);
       chassisApi.angularVelocity.set(...angularVelocity);
       chassisApi.rotation.set(...rotation);
+    }
+
+    const x = carPosition.current[0];
+    if (x > 0.01 || x < -0.01) {
+      console.log("RESET CAR" + x);
+      chassisApi.position.set(
+        0,
+        carPosition.current[1],
+        carPosition.current[2]
+      );
+      chassisApi.velocity.set(
+        0,
+        carVelocity.current[1],
+        carVelocity.current[2]
+      );
     }
   });
 
