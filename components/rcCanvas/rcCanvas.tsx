@@ -76,9 +76,7 @@ function Ball(props: SphereProps & { radius: number; mass: number }) {
     }
 
     const x = ballPos.current[0];
-    if (x > 0.01 || x < -0.01) {
-      console.log("RESET BALL " + x);
-      console.log(ballRot.current);
+    if (x > 0.02 || x < -0.02) {
       sphereApi.position.set(0, ballPos.current[1], ballPos.current[2]);
       sphereApi.velocity.set(0, ballVel.current[1], ballVel.current[2]);
     }
@@ -101,8 +99,8 @@ const RCCanvas = () => {
         <PerspectiveCamera makeDefault fov={70} position={[-50, 10, 0]} />
         <OrbitControls />
         <Stats />
-        <ambientLight intensity={0.03} />
-        <spotLight intensity={0.5} position={[0, 50, 0]} />
+        <ambientLight intensity={0.5} />
+        <spotLight intensity={0.5} position={[0, 40, 0]} />
         <Physics
           broadphase="Naive"
           defaultContactMaterial={{
@@ -111,7 +109,7 @@ const RCCanvas = () => {
           }}
           stepSize={1 / 120}
         >
-          <ToggledDebug>
+          <Debug>
             <Plane rotation={[-Math.PI / 2, 0, 0]} userData={{ id: "floor" }} />
             <Plane
               rotation={[Math.PI / 2, 0, 0]}
@@ -128,7 +126,16 @@ const RCCanvas = () => {
               position={[0, 10, 30]}
               userData={{ id: "wall-2" }}
             />
-            <QuarterPipe position={[0, 0, -29]} />
+            <QuarterPipe
+              position={[0, 30, 30]}
+              rotation={[-Math.PI / 2, 0, 0]}
+            />
+            <QuarterPipe position={[0, 0, 30]} />
+            <QuarterPipe position={[0, 0, -30]} rotation={[0, Math.PI, 0]} />
+            <QuarterPipe
+              position={[0, 30, -30]}
+              rotation={[Math.PI / 2, Math.PI, 0]}
+            />
             <Vehicle
               position={[0, 3, 10]}
               rotation={[0, Math.PI, 0]}
@@ -147,7 +154,7 @@ const RCCanvas = () => {
               radius={2.5}
               mass={0.1}
             />
-          </ToggledDebug>
+          </Debug>
         </Physics>
         <color attach="background" args={["#303030"]} />
       </Canvas>

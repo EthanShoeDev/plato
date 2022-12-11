@@ -21,12 +21,9 @@ export function QuarterPipe({
   rotation,
   position,
 }: Pick<TrimeshProps, "rotation" | "position">) {
-  const { nodes, materials } = useGLTF(
-    "/quarterPipe.glb"
-  ) as unknown as GLTFResult;
+  const { nodes, materials } = useGLTF("/qPipe.glb") as unknown as GLTFResult;
   const vertices = nodes.qPipe.geometry.attributes.position.array;
   const indices = nodes.qPipe.geometry.index?.array ?? [];
-  console.log(nodes);
   const [ref, meshApi] = useTrimesh(
     () => ({
       args: [vertices, indices],
@@ -46,4 +43,4 @@ export function QuarterPipe({
   );
 }
 
-useGLTF.preload("/quarterPipe.glb");
+useGLTF.preload("/qPipe.glb");
