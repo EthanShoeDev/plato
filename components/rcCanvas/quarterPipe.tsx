@@ -7,7 +7,12 @@ import React, { useEffect, useRef } from "react";
 import { useGLTF } from "@react-three/drei";
 import { GLTF } from "three-stdlib";
 import { Mesh } from "three";
-import { TrimeshProps, Triplet, useTrimesh } from "@react-three/cannon";
+import {
+  TrimeshProps,
+  Triplet,
+  useSphere,
+  useTrimesh,
+} from "@react-three/cannon";
 import niceColors from "nice-color-palettes";
 
 type GLTFResult = GLTF & {
@@ -24,21 +29,21 @@ export function QuarterPipe({
   const { nodes, materials } = useGLTF("/qPipe.glb") as unknown as GLTFResult;
   const vertices = nodes.qPipe.geometry.attributes.position.array;
   const indices = nodes.qPipe.geometry.index?.array ?? [];
-  const [ref, meshApi] = useTrimesh(
+  const [ref] = useTrimesh(
     () => ({
       args: [vertices, indices],
-      type: "Static",
+      material: "ground",
+      type: "Kinematic",
       mass: 0,
       rotation,
       position,
+      userData: { id: "qPipe" },
     }),
     useRef<Mesh>(null)
   );
 
-  useEffect(() => {});
-
   return (
-    <mesh ref={ref} geometry={nodes.qPipe.geometry}>
+    <mesh receiveShadow ref={ref} geometry={nodes.qPipe.geometry}>
       <meshStandardMaterial color={niceColors[50][0]} />
     </mesh>
   );

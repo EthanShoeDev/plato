@@ -11,7 +11,11 @@ import Ball from "./ball";
 
 function Plane(props: PlaneProps) {
   const [ref] = usePlane(
-    () => ({ material: "ground", type: "Static", ...props }),
+    () => ({
+      material: "ground",
+      type: "Static",
+      ...props,
+    }),
     useRef<Mesh>(null)
   );
   return (
@@ -34,6 +38,7 @@ const RCCanvas = () => {
         <ambientLight intensity={0.5} />
         <spotLight intensity={0.5} position={[0, 40, 0]} />
         <Physics
+          // broadphase="SAP"
           broadphase="Naive"
           defaultContactMaterial={{
             contactEquationRelaxation: 4,
@@ -41,7 +46,7 @@ const RCCanvas = () => {
           }}
           stepSize={1 / 120}
         >
-          <ToggledDebug>
+          <Debug>
             <Plane rotation={[-Math.PI / 2, 0, 0]} userData={{ id: "floor" }} />
             <Plane
               rotation={[Math.PI / 2, 0, 0]}
@@ -86,7 +91,7 @@ const RCCanvas = () => {
               radius={2.5}
               mass={0.1}
             />
-          </ToggledDebug>
+          </Debug>
         </Physics>
         <color attach="background" args={["#303030"]} />
       </Canvas>

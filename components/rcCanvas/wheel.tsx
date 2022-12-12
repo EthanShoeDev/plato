@@ -29,7 +29,7 @@ export const Wheel = forwardRef<Group, WheelProps>(
     useCompoundBody(
       () => ({
         collisionFilterGroup: 0,
-        mass: 1,
+        mass: 10,
         material: "wheel",
         shapes: [
           {

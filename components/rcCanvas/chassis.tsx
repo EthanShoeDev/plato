@@ -59,7 +59,7 @@ export const Chassis = forwardRef<Mesh>((_, ref) => {
 
   return (
     <mesh ref={ref}>
-      <group position={[0, -0.6, 0]}>
+      <group position={[0, -0.85, 0]}>
         <mesh
           material={materials["Orange plastic"]}
           geometry={nodes.chassis_1.geometry}

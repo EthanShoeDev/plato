@@ -35,6 +35,7 @@ const keyControlMap = {
   s: "backward",
   w: "forward",
   c: "spin",
+  j: "jump",
 } as const;
 
 type KeyCode = keyof typeof keyControlMap;
@@ -52,6 +53,7 @@ export function useControls() {
     reset: false,
     right: false,
     spin: false,
+    jump: false,
   });
 
   useKeyControls(controls, keyControlMap);

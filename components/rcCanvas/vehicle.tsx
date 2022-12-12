@@ -37,12 +37,12 @@ const XZPlane = new Plane(new Vector3(1, 0, 0), 0);
 function Vehicle({
   angularVelocity,
   back = -1.15,
-  force = 1500,
+  force = 75,
   front = 1.3,
-  height = -0.04,
+  height = -0.46,
   maxBrake = 50,
   position,
-  radius = 0.7,
+  radius = 0.34,
   rotation,
   steer = 0.5,
   width = 1.2,
@@ -96,9 +96,10 @@ function Vehicle({
   const [chassisBody, chassisApi] = useBox(
     () => ({
       allowSleep: false,
+
       angularVelocity,
       args: [1.7, 1, 4],
-      mass: 1,
+      mass: 10,
       // onCollide: (e) => console.log("bonk", e.body.userData),
       position,
       rotation,
@@ -138,7 +139,7 @@ function Vehicle({
   const mouseRay = useMemo(() => new Raycaster(), []);
 
   useFrame((state, delta) => {
-    const { backward, boost, forward, reset, spin } = controls.current;
+    const { backward, boost, forward, reset, spin, jump } = controls.current;
 
     if (controllable) {
       for (let e = 1; e < 4; e++) {
@@ -169,7 +170,10 @@ function Vehicle({
       const cross = forwardVec.cross(vecToPointer);
 
       if (boost) {
-        chassisApi.applyLocalForce([0, 0, 99], [0, 0, 0]);
+        chassisApi.applyLocalForce([0, 0, 299], [0, 0, 0]);
+      }
+      if (jump) {
+        chassisApi.applyLocalForce([0, 99, 0], [0, 0, 0]);
       }
 
       if (spin) {
@@ -181,7 +185,7 @@ function Vehicle({
       }
 
       const direction = cross.x > 0 ? 1 : -1;
-      const torque = angleToPointer * 6000 * delta;
+      const torque = angleToPointer * 19900 * delta;
       chassisApi.applyTorque([direction * torque, 0, 0]);
     }
 
@@ -209,9 +213,9 @@ function Vehicle({
   });
 
   return (
-    <group ref={vehicle} position={[0, -0.4, 0]}>
+    <group ref={vehicle}>
       {controllable ? (
-        <mesh ref={mouseXZPlaneIndicator}>
+        <mesh ref={mouseXZPlaneIndicator} visible={false}>
           <meshBasicMaterial color={"pink"} />
           <sphereGeometry args={[0.5]} />
         </mesh>
