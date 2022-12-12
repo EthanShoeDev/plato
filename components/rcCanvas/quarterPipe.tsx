@@ -27,6 +27,7 @@ export function QuarterPipe({
   const [ref, meshApi] = useTrimesh(
     () => ({
       args: [vertices, indices],
+      type: "Static",
       mass: 0,
       rotation,
       position,

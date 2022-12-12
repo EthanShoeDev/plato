@@ -1,91 +1,23 @@
-import React, { useRef, useEffect, useMemo, useLayoutEffect } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import React, { useRef } from "react";
+import { Canvas } from "@react-three/fiber";
 import styles from "../../styles/backgroundCanvas.module.css";
 import { useToggledControl } from "./useToggleControl";
-import {
-  CylinderArgs,
-  CylinderProps,
-  Debug,
-  Physics,
-  PlaneProps,
-  SphereArgs,
-  SphereProps,
-  Triplet,
-  useBox,
-  useCylinder,
-  useHingeConstraint,
-  useLockConstraint,
-  usePlane,
-  useSphere,
-} from "@react-three/cannon";
-import { Camera, Group, Mesh, Vector3 } from "three";
+import { Debug, Physics, PlaneProps, usePlane } from "@react-three/cannon";
+import { Mesh } from "three";
 import Vehicle from "./vehicle";
 import { OrbitControls, PerspectiveCamera, Stats } from "@react-three/drei";
-import { useControls } from "./useControls";
 import { QuarterPipe } from "./quarterPipe";
-import niceColors from "nice-color-palettes";
+import Ball from "./ball";
 
 function Plane(props: PlaneProps) {
   const [ref] = usePlane(
     () => ({ material: "ground", type: "Static", ...props }),
-    useRef<Group>(null)
-  );
-  return (
-    <group ref={ref}>
-      <mesh receiveShadow>
-        <planeGeometry args={[100, 100]} />
-        <meshStandardMaterial color="#303030" />
-      </mesh>
-    </group>
-  );
-}
-
-function Ball(props: SphereProps & { radius: number; mass: number }) {
-  const controls = useControls();
-  const initialPosition: Triplet = useMemo(
-    () => props.position ?? [0, 2, 0],
-    []
-  );
-
-  const [ref, sphereApi] = useSphere(
-    () => ({
-      args: [props.radius],
-      ...props,
-    }),
     useRef<Mesh>(null)
   );
-
-  const ballRot = useRef<Triplet>([0, 0, 0]);
-  const ballPos = useRef<Triplet>(initialPosition);
-  const ballVel = useRef<Triplet>([0, 0, 0]);
-  useEffect(() => {
-    sphereApi.position.subscribe((p) => (ballPos.current = p));
-    sphereApi.velocity.subscribe((v) => (ballVel.current = v));
-    sphereApi.rotation.subscribe((r) => (ballRot.current = r));
-    sphereApi.angularFactor.set(1, 0, 0);
-    sphereApi.linearFactor.set(0, 1, 1);
-  }, []);
-
-  useFrame(() => {
-    const { reset } = controls.current;
-
-    if (reset) {
-      sphereApi.position.set(...initialPosition);
-      sphereApi.velocity.set(0, 0, 0);
-      sphereApi.angularVelocity.set(0, 0, 0);
-    }
-
-    const x = ballPos.current[0];
-    if (x > 0.02 || x < -0.02) {
-      sphereApi.position.set(0, ballPos.current[1], ballPos.current[2]);
-      sphereApi.velocity.set(0, ballVel.current[1], ballVel.current[2]);
-    }
-  });
-
   return (
-    <mesh ref={ref}>
-      <sphereGeometry args={[props.radius]} />
-      <meshStandardMaterial color={"red"} />
+    <mesh receiveShadow ref={ref}>
+      <planeGeometry args={[100, 100]} />
+      <meshStandardMaterial color="#303030" />
     </mesh>
   );
 }
@@ -109,7 +41,7 @@ const RCCanvas = () => {
           }}
           stepSize={1 / 120}
         >
-          <Debug>
+          <ToggledDebug>
             <Plane rotation={[-Math.PI / 2, 0, 0]} userData={{ id: "floor" }} />
             <Plane
               rotation={[Math.PI / 2, 0, 0]}
@@ -154,7 +86,7 @@ const RCCanvas = () => {
               radius={2.5}
               mass={0.1}
             />
-          </Debug>
+          </ToggledDebug>
         </Physics>
         <color attach="background" args={["#303030"]} />
       </Canvas>
