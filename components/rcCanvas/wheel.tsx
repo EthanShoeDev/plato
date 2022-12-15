@@ -21,6 +21,7 @@ type WheelGLTF = GLTF & {
 type WheelProps = RigidBodyProps & {
   leftSide?: boolean;
   radius: number;
+  wheelThickness?: number;
 };
 
 export const Wheel = forwardRef<RigidBodyApi, WheelProps>(
@@ -29,17 +30,21 @@ export const Wheel = forwardRef<RigidBodyApi, WheelProps>(
       materials: { Chrom, Rubber, Steel },
       nodes,
     } = useGLTF("/wheel.glb") as unknown as WheelGLTF;
-
     return (
       <RigidBody
+        {...props}
         ref={ref}
         canSleep={false}
-        // enabledTranslations={[false, true, true]}
-        // enabledRotations={[true, false, false]}
-        // rotation={[0.3, 0, 0]} //TODO
+        angularDamping={100}
+        colliders={false}
+        userData={{ name: "wheel" }}
       >
-        <CylinderCollider args={[0.2, radius]}>
-          <group rotation={[0, 0, ((leftSide ? 1 : -1) * Math.PI) / 2]}>
+        <CylinderCollider
+          args={[props.wheelThickness ?? 0.5, radius]}
+          rotation={[0, leftSide ? Math.PI : 0, Math.PI / 2]}
+          collisionGroups={0x0002fffe}
+        >
+          <group rotation={[0, 0, 0]}>
             <mesh material={Rubber} geometry={nodes.wheel_1.geometry} />
             <mesh material={Steel} geometry={nodes.wheel_2.geometry} />
             <mesh material={Chrom} geometry={nodes.wheel_3.geometry} />

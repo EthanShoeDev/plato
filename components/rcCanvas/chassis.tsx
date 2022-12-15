@@ -76,8 +76,10 @@ export const Chassis = forwardRef<RigidBodyApi>(
         enabledTranslations={[false, true, true]}
         enabledRotations={[true, false, false]}
         angularDamping={5}
+        onSleep={() => console.log("chassis sleeping")}
+        userData={{ name: "chassis" }}
       >
-        <CuboidCollider args={[0.85, 0.5, 2]} />
+        <CuboidCollider args={[0.85, 0.5, 2]} collisionGroups={0x0001ffff} />
         <group position={[0, -0.85, 0]}>
           <mesh
             material={materials["Orange plastic"]}
