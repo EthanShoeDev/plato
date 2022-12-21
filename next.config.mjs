@@ -25,7 +25,7 @@ const nextConfig = withBundleAnalyzer(
     swcMinify: true,
     pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
     webpack: (config, { isServer }) => {
-      config.experiments = { asyncWebAssembly: true };
+      config.experiments = { asyncWebAssembly: true, layers: true };
       return config;
     }
   })
