@@ -7,13 +7,13 @@ import React, { useEffect, useRef } from "react";
 import { useGLTF } from "@react-three/drei";
 import { GLTF } from "three-stdlib";
 import { Mesh } from "three";
-import {
-  TrimeshProps,
-  Triplet,
-  useSphere,
-  useTrimesh,
-} from "@react-three/cannon";
 import niceColors from "nice-color-palettes";
+import {
+  ConvexHullCollider,
+  MeshCollider,
+  RigidBody,
+  RigidBodyProps,
+} from "@react-three/rapier";
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -22,30 +22,17 @@ type GLTFResult = GLTF & {
   materials: {};
 };
 
-export function QuarterPipe({
-  rotation,
-  position,
-}: Pick<TrimeshProps, "rotation" | "position">) {
+export function QuarterPipe(props: RigidBodyProps) {
   const { nodes, materials } = useGLTF("/qPipe.glb") as unknown as GLTFResult;
-  const vertices = nodes.qPipe.geometry.attributes.position.array;
-  const indices = nodes.qPipe.geometry.index?.array ?? [];
-  const [ref] = useTrimesh(
-    () => ({
-      args: [vertices, indices],
-      material: "ground",
-      type: "Kinematic",
-      mass: 0,
-      rotation,
-      position,
-      userData: { id: "qPipe" },
-    }),
-    useRef<Mesh>(null)
-  );
 
   return (
-    <mesh receiveShadow ref={ref} geometry={nodes.qPipe.geometry}>
-      <meshStandardMaterial color={niceColors[50][0]} />
-    </mesh>
+    <RigidBody {...props} type="fixed" colliders={false}>
+      <MeshCollider type="trimesh">
+        <mesh receiveShadow geometry={nodes.qPipe.geometry}>
+          <meshStandardMaterial color={niceColors[50][0]} />
+        </mesh>
+      </MeshCollider>
+    </RigidBody>
   );
 }
 

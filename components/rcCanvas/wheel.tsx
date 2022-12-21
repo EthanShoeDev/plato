@@ -1,8 +1,12 @@
-import type { CylinderProps } from "@react-three/cannon";
-import { useCompoundBody } from "@react-three/cannon";
 import { PerspectiveCamera, useGLTF } from "@react-three/drei";
+import {
+  CylinderCollider,
+  RigidBody,
+  RigidBodyApi,
+  RigidBodyProps,
+} from "@react-three/rapier";
 import { forwardRef, useRef } from "react";
-import type { Group, Material, Mesh } from "three";
+import type { Material, Mesh } from "three";
 import type { GLTF } from "three-stdlib/loaders/GLTFLoader";
 
 useGLTF.preload("/wheel.glb");
@@ -14,44 +18,39 @@ type WheelGLTF = GLTF & {
   nodes: Record<"wheel_1" | "wheel_2" | "wheel_3", Mesh>;
 };
 
-type WheelProps = CylinderProps & {
+type WheelProps = RigidBodyProps & {
   leftSide?: boolean;
   radius: number;
+  wheelThickness?: number;
 };
 
-export const Wheel = forwardRef<Group, WheelProps>(
+export const Wheel = forwardRef<RigidBodyApi, WheelProps>(
   ({ leftSide, radius = 0.7, ...props }, ref) => {
     const {
       materials: { Chrom, Rubber, Steel },
       nodes,
     } = useGLTF("/wheel.glb") as unknown as WheelGLTF;
-
-    useCompoundBody(
-      () => ({
-        collisionFilterGroup: 0,
-        mass: 10,
-        material: "wheel",
-        shapes: [
-          {
-            args: [radius, radius, 0.5, 16],
-            rotation: [0, 0, -Math.PI / 2],
-            type: "Cylinder",
-          },
-        ],
-        type: "Kinematic",
-        ...props,
-      }),
-      ref
-    );
-
     return (
-      <group ref={ref}>
-        <group rotation={[0, 0, ((leftSide ? 1 : -1) * Math.PI) / 2]}>
-          <mesh material={Rubber} geometry={nodes.wheel_1.geometry} />
-          <mesh material={Steel} geometry={nodes.wheel_2.geometry} />
-          <mesh material={Chrom} geometry={nodes.wheel_3.geometry} />
-        </group>
-      </group>
+      <RigidBody
+        {...props}
+        ref={ref}
+        canSleep={false}
+        angularDamping={100}
+        colliders={false}
+        userData={{ name: "wheel" }}
+      >
+        <CylinderCollider
+          args={[props.wheelThickness ?? 0.5, radius]}
+          rotation={[0, leftSide ? Math.PI : 0, Math.PI / 2]}
+          collisionGroups={0x0002fffe}
+        >
+          <group rotation={[0, 0, 0]}>
+            <mesh material={Rubber} geometry={nodes.wheel_1.geometry} />
+            <mesh material={Steel} geometry={nodes.wheel_2.geometry} />
+            <mesh material={Chrom} geometry={nodes.wheel_3.geometry} />
+          </group>
+        </CylinderCollider>
+      </RigidBody>
     );
   }
 );

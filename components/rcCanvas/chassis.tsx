@@ -1,4 +1,10 @@
-import { PerspectiveCamera, useGLTF } from "@react-three/drei";
+import { OrbitControls, PerspectiveCamera, useGLTF } from "@react-three/drei";
+import {
+  CuboidCollider,
+  RigidBody,
+  RigidBodyApi,
+  RigidBodyProps,
+} from "@react-three/rapier";
 import { forwardRef } from "react";
 import type { Material, Mesh } from "three";
 import type { GLTF } from "three-stdlib/loaders/GLTFLoader";
@@ -54,55 +60,71 @@ type BeetleGLTF = GLTF & {
   nodes: Record<BeetleNode, Mesh>;
 };
 
-export const Chassis = forwardRef<Mesh>((_, ref) => {
-  const { nodes, materials } = useGLTF("/Beetle.glb") as unknown as BeetleGLTF;
+export const Chassis = forwardRef<RigidBodyApi>(
+  (props: RigidBodyProps, ref) => {
+    const { nodes, materials } = useGLTF(
+      "/Beetle.glb"
+    ) as unknown as BeetleGLTF;
 
-  return (
-    <mesh ref={ref}>
-      <group position={[0, -0.85, 0]}>
-        <mesh
-          material={materials["Orange plastic"]}
-          geometry={nodes.chassis_1.geometry}
-        />
-        <mesh
-          material={materials["Orange plastic"]}
-          geometry={nodes.chassis_2.geometry}
-        />
-        <mesh
-          material={materials["Orange plastic"]}
-          geometry={nodes.chassis_3.geometry}
-        />
-        <mesh
-          material={materials["Orange plastic"]}
-          geometry={nodes.chassis_4.geometry}
-        />
-        <mesh
-          material={materials["Orange plastic"]}
-          geometry={nodes.chassis_5.geometry}
-        />
-        <mesh
-          material={materials["Orange plastic"]}
-          geometry={nodes.chassis_6.geometry}
-        />
-        <mesh
-          material={materials["Orange plastic"]}
-          geometry={nodes.chassis_7.geometry}
-        />
-        <mesh geometry={nodes.chassis_8.geometry} />
-        <mesh
-          material={materials.Rubber}
-          geometry={nodes.chassis_9.geometry}
-          material-transparent={false}
-          material-color="black"
-        />
-        <mesh geometry={nodes.chassis_10.geometry} />
-        <mesh geometry={nodes.chassis_11.geometry} />
-        <mesh geometry={nodes.chassis_12.geometry} />
-        <mesh geometry={nodes.chassis_13.geometry} />
-        <mesh geometry={nodes.chassis_14.geometry} />
-        <mesh geometry={nodes.chassis_15.geometry} />
-        <mesh geometry={nodes.chassis_16.geometry} />
-      </group>
-    </mesh>
-  );
-});
+    return (
+      <RigidBody
+        {...props}
+        ref={ref}
+        mass={100}
+        colliders={false}
+        canSleep={false}
+        enabledTranslations={[false, true, true]}
+        enabledRotations={[true, false, false]}
+        angularDamping={5}
+        onSleep={() => console.log("chassis sleeping")}
+        userData={{ name: "chassis" }}
+      >
+        <CuboidCollider args={[0.85, 0.5, 2]} collisionGroups={0x0001ffff} />
+        <group position={[0, -0.85, 0]}>
+          <mesh
+            material={materials["Orange plastic"]}
+            geometry={nodes.chassis_1.geometry}
+          />
+          <mesh
+            material={materials["Orange plastic"]}
+            geometry={nodes.chassis_2.geometry}
+          />
+          <mesh
+            material={materials["Orange plastic"]}
+            geometry={nodes.chassis_3.geometry}
+          />
+          <mesh
+            material={materials["Orange plastic"]}
+            geometry={nodes.chassis_4.geometry}
+          />
+          <mesh
+            material={materials["Orange plastic"]}
+            geometry={nodes.chassis_5.geometry}
+          />
+          <mesh
+            material={materials["Orange plastic"]}
+            geometry={nodes.chassis_6.geometry}
+          />
+          <mesh
+            material={materials["Orange plastic"]}
+            geometry={nodes.chassis_7.geometry}
+          />
+          <mesh geometry={nodes.chassis_8.geometry} />
+          <mesh
+            material={materials.Rubber}
+            geometry={nodes.chassis_9.geometry}
+            material-transparent={false}
+            material-color="black"
+          />
+          <mesh geometry={nodes.chassis_10.geometry} />
+          <mesh geometry={nodes.chassis_11.geometry} />
+          <mesh geometry={nodes.chassis_12.geometry} />
+          <mesh geometry={nodes.chassis_13.geometry} />
+          <mesh geometry={nodes.chassis_14.geometry} />
+          <mesh geometry={nodes.chassis_15.geometry} />
+          <mesh geometry={nodes.chassis_16.geometry} />
+        </group>
+      </RigidBody>
+    );
+  }
+);

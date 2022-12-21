@@ -1,232 +1,286 @@
-import type { BoxProps, Triplet, WheelInfoOptions } from "@react-three/cannon";
-import { useBox, useRaycastVehicle } from "@react-three/cannon";
-import { PerspectiveCameraProps, useFrame, useThree } from "@react-three/fiber";
-import { ReactNode, useMemo } from "react";
-import { useEffect, useRef } from "react";
 import {
-  Group,
-  Mesh,
-  PerspectiveCamera,
-  Vector3,
-  Raycaster,
-  Plane,
-  Quaternion,
   Euler,
-} from "three";
+  PerspectiveCameraProps,
+  useFrame,
+  useThree,
+} from "@react-three/fiber";
+import {
+  RigidBodyProps,
+  useRevoluteJoint,
+  RigidBodyApiRef,
+  RigidBodyApi,
+  JointApi,
+} from "@react-three/rapier";
+import { ReactNode, useLayoutEffect, useMemo } from "react";
+import { useEffect, useRef } from "react";
+import * as THREE from "three";
 
 import { Chassis } from "./chassis";
+import { vecArrayToObject } from "./helper";
 import { useControls } from "./useControls";
 import { Wheel } from "./wheel";
+import { Vector3 } from "@react-three/fiber";
+import { DataConnection } from "peerjs";
 
-export type VehicleProps = Required<
-  Pick<BoxProps, "angularVelocity" | "position" | "rotation">
-> & {
-  back?: number;
+type MessagePayload = {
+  pos: [number, number, number];
+  rot: [number, number, number];
+  vel: [number, number, number];
+  angVel: [number, number, number];
+};
+
+export type VehicleProps = RigidBodyProps & {
+  connection?: DataConnection | null;
+  wheelPosition?: {
+    back: number;
+    front: number;
+    height: number;
+    width: number;
+  };
   force?: number;
-  front?: number;
-  height?: number;
   maxBrake?: number;
   radius?: number;
   steer?: number;
-  width?: number;
   controllable?: boolean;
+  height?: number;
+  width?: number;
+  length?: number;
+  targetTravel?: number;
+  dampening?: number;
+  stiffness?: number;
 };
 
-const XZPlane = new Plane(new Vector3(1, 0, 0), 0);
+const XZPlane = new THREE.Plane(new THREE.Vector3(1, 0, 0), 0);
 
-function Vehicle({
-  angularVelocity,
-  back = -1.15,
-  force = 75,
-  front = 1.3,
-  height = -0.46,
-  maxBrake = 50,
-  position,
-  radius = 0.34,
-  rotation,
-  steer = 0.5,
-  width = 1.2,
-  controllable = true,
-}: VehicleProps) {
-  const wheels = [
-    useRef<Group>(null),
-    useRef<Group>(null),
-    useRef<Group>(null),
-    useRef<Group>(null),
-  ];
+function Vehicle(props: VehicleProps) {
+  const wheelRadius = props.radius ?? 0.4;
 
   const controls = useControls();
 
-  const wheelInfo: WheelInfoOptions = {
-    axleLocal: [-1, 0, 0], // This is inverted for asymmetrical wheel models (left v. right sided)
-    customSlidingRotationalSpeed: -30,
-    dampingCompression: 4.4,
-    dampingRelaxation: 10,
-    directionLocal: [0, -1, 0], // set to same as Physics Gravity
-    frictionSlip: 2,
-    maxSuspensionForce: 1e6,
-    maxSuspensionTravel: 0.4,
-    radius,
-    suspensionRestLength: 0.3,
-    suspensionStiffness: 200,
-    useCustomSlidingRotationalSpeed: true,
-  };
-
-  const wheelInfo1: WheelInfoOptions = {
-    ...wheelInfo,
-    chassisConnectionPointLocal: [-width / 2, height, front],
-    isFrontWheel: true,
-  };
-  const wheelInfo2: WheelInfoOptions = {
-    ...wheelInfo,
-    chassisConnectionPointLocal: [width / 2, height, front],
-    isFrontWheel: true,
-  };
-  const wheelInfo3: WheelInfoOptions = {
-    ...wheelInfo,
-    chassisConnectionPointLocal: [-width / 2, height, back],
-    isFrontWheel: false,
-  };
-  const wheelInfo4: WheelInfoOptions = {
-    ...wheelInfo,
-    chassisConnectionPointLocal: [width / 2, height, back],
-    isFrontWheel: false,
-  };
-
-  const [chassisBody, chassisApi] = useBox(
-    () => ({
-      allowSleep: false,
-
-      angularVelocity,
-      args: [1.7, 1, 4],
-      mass: 10,
-      // onCollide: (e) => console.log("bonk", e.body.userData),
-      position,
-      rotation,
-    }),
-    useRef<Mesh>(null)
+  const initialPosition = useMemo<Vector3>(
+    () => props.position ?? [0, 2, 0],
+    []
+  );
+  const initialRotation = useMemo<Euler>(
+    () => props.rotation ?? new THREE.Euler(0, Math.PI, 0),
+    []
   );
 
-  const [vehicle, vehicleApi] = useRaycastVehicle(
-    () => ({
-      chassisBody,
-      wheelInfos: [wheelInfo1, wheelInfo2, wheelInfo3, wheelInfo4],
-      wheels,
-    }),
-    useRef<Group>(null)
-  );
+  const chassisApi = useRef<RigidBodyApi>(null!);
+  const wheels = [
+    useRef<RigidBodyApi>(null!),
+    useRef<RigidBodyApi>(null!),
+    useRef<RigidBodyApi>(null!),
+    useRef<RigidBodyApi>(null!),
+  ];
 
-  const carRotation = useRef([...rotation]);
-  const carPosition = useRef([...position]);
-  const carVelocity = useRef([0, 0, 0]);
-  // const carAngularVelocity = useRef([0, 0, 0]);
-  useEffect(() => {
-    vehicleApi.sliding.subscribe((v) => v && console.log("sliding", v));
-    chassisApi.rotation.subscribe((r) => (carRotation.current = r));
-    chassisApi.position.subscribe((p) => (carPosition.current = p));
-    chassisApi.velocity.subscribe((v) => (carVelocity.current = v));
-    chassisApi.linearFactor.set(0, 1, 1);
-    chassisApi.angularFactor.set(1, 0, 0);
-    chassisApi.angularDamping.set(0.999);
-
-    // chassisApi.angularVelocity.subscribe(
-    //   (a) => (carAngularVelocity.current = a)
-    // );
-  }, []);
+  const joints = useRef<JointApi[]>(createJoints(chassisApi, wheels));
 
   const { camera } = useThree();
-  const mouseXZPlaneIndicator = useRef<Mesh>(null!);
-  const mouseRay = useMemo(() => new Raycaster(), []);
+  const mouseXZPlaneIndicator = useRef<THREE.Mesh>(null!);
+  const mouseRay = useMemo(() => new THREE.Raycaster(), []);
 
+  useEffect(() => {
+    console.log("Vehicle useEffect controllable=" + props.controllable);
+    for (let i = 0; i < joints.current.length; i++) {
+      joints.current[i].configureMotorPosition(
+        props.targetTravel ?? 0,
+        props.stiffness ?? 0,
+        props.dampening ?? 0
+      );
+    }
+    if (!props.controllable && props.connection) {
+      props.connection.on("data", (data: unknown) => {
+        let payload = data as MessagePayload;
+        payload.pos[2] *= -1;
+        payload.vel[2] *= -1;
+
+        payload.rot[1] += Math.PI;
+        payload.rot[0] *= -1;
+        payload.angVel[0] *= -1;
+
+        chassisApi.current.setTranslation(tempEuler.fromArray(payload.pos));
+        chassisApi.current.setRotation(
+          tempQuaternion.setFromEuler(tempEuler.fromArray(payload.rot))
+        );
+        chassisApi.current.setLinvel(tempEuler.fromArray(payload.vel));
+        chassisApi.current.setAngvel(tempEuler.fromArray(payload.angVel));
+      });
+    }
+  }, []);
+
+  const tempVec3 = useMemo(() => new THREE.Vector3(), []);
+  const tempEuler = useMemo(() => new THREE.Euler(), []);
+  const tempQuaternion = useMemo(() => new THREE.Quaternion(), []);
+  const frameCount = useRef(0);
   useFrame((state, delta) => {
-    const { backward, boost, forward, reset, spin, jump } = controls.current;
+    try {
+      const { backward, boost, forward, reset, spin, jump } = controls.current;
 
-    if (controllable) {
-      for (let e = 1; e < 4; e++) {
-        vehicleApi.applyEngineForce(
-          forward || backward ? force * (forward && !backward ? -4 : 4) : 0,
-          2
+      if (props.controllable) {
+        mouseRay.setFromCamera(state.mouse, camera);
+        mouseRay.ray.intersectPlane(
+          XZPlane,
+          mouseXZPlaneIndicator.current.position
         );
-      }
 
-      // for (let b = 2; b < 4; b++) {
-      //   vehicleApi.setBrake(brake ? maxBrake : 0, b);
-      // }
+        const vecToPointer = mouseXZPlaneIndicator
+          .current!.position.clone()
+          .sub(chassisApi.current.translation());
 
-      mouseRay.setFromCamera(state.mouse, camera);
-      mouseRay.ray.intersectPlane(
-        XZPlane,
-        mouseXZPlaneIndicator.current.position
-      );
+        const currentRotation = chassisApi.current.rotation();
+        const forwardVec = tempVec3.set(0, 0, 1);
+        forwardVec.applyQuaternion(currentRotation); //apply the orientation of
 
-      const vecToPointer = mouseXZPlaneIndicator
-        .current!.position.clone()
-        .sub(new Vector3(...carPosition.current));
+        const angleToPointer = forwardVec.angleTo(vecToPointer);
+        const cross = forwardVec.cross(vecToPointer);
 
-      const forwardVec = new Vector3(0, 0, 1);
-      forwardVec.applyEuler(new Euler(...carRotation.current)); //apply the orientation of
+        if (boost) {
+          chassisApi.current.applyImpulse(
+            tempVec3.set(0, 0, 100).applyQuaternion(currentRotation)
+          );
+        }
+        if (jump) {
+          chassisApi.current.applyImpulse(
+            tempVec3.set(0, 100, 0).applyQuaternion(currentRotation)
+          );
+        }
+        if (forward) {
+          // console.log("forward");
+          for (let i = 0; i < joints.current.length; i++) {
+            joints.current[i].configureMotorVelocity(200, 0);
+          }
+        }
+        if (backward) {
+          // console.log("backward");
+          for (let i = 0; i < joints.current.length; i++) {
+            joints.current[i].configureMotorVelocity(-200, 0);
+          }
+        }
+        if (!forward && !backward) {
+          // console.log("not forward");
+          for (let i = 0; i < joints.current.length; i++) {
+            joints.current[i].configureMotorVelocity(0, 0);
+          }
+        }
 
-      const angleToPointer = forwardVec.angleTo(vecToPointer);
-      const cross = forwardVec.cross(vecToPointer);
+        // if (spin) {
+        //   chassisApi.rotation.set(
+        //     carRotation.current[0],
+        //     carRotation.current[1],
+        //     carRotation.current[2] + Math.PI
+        //   );
+        // }
 
-      if (boost) {
-        chassisApi.applyLocalForce([0, 0, 299], [0, 0, 0]);
-      }
-      if (jump) {
-        chassisApi.applyLocalForce([0, 99, 0], [0, 0, 0]);
-      }
-
-      if (spin) {
-        chassisApi.rotation.set(
-          carRotation.current[0],
-          carRotation.current[1],
-          carRotation.current[2] + Math.PI
+        const direction = cross.x > 0 ? 1 : -1;
+        const torque = angleToPointer * 4000 * delta;
+        chassisApi.current.applyTorqueImpulse(
+          vecArrayToObject([direction * torque, 0, 0])
         );
+
+        if (frameCount.current % 2 == 0) {
+          const payload: MessagePayload = {
+            pos: chassisApi.current.translation().toArray(),
+            rot: tempEuler
+              .setFromQuaternion(chassisApi.current.rotation())
+              .toArray()
+              .slice(0, 3) as any,
+            vel: chassisApi.current.linvel().toArray(),
+            angVel: chassisApi.current.angvel().toArray(),
+          };
+          props.connection?.send(payload);
+        }
       }
 
-      const direction = cross.x > 0 ? 1 : -1;
-      const torque = angleToPointer * 19900 * delta;
-      chassisApi.applyTorque([direction * torque, 0, 0]);
-    }
-
-    if (reset) {
-      chassisApi.position.set(...position);
-      chassisApi.velocity.set(0, 0, 0);
-      chassisApi.angularVelocity.set(...angularVelocity);
-      chassisApi.rotation.set(...rotation);
-    }
-
-    const x = carPosition.current[0];
-    if (x > 0.01 || x < -0.01) {
-      console.log("RESET CAR" + x);
-      chassisApi.position.set(
-        0,
-        carPosition.current[1],
-        carPosition.current[2]
-      );
-      chassisApi.velocity.set(
-        0,
-        carVelocity.current[1],
-        carVelocity.current[2]
-      );
+      if (reset) {
+        chassisApi.current.setTranslation(vecArrayToObject(initialPosition));
+        const euler = new THREE.Euler();
+        if (initialRotation instanceof THREE.Euler) euler.copy(initialRotation);
+        else euler.set(...initialRotation);
+        chassisApi.current.setRotation(
+          new THREE.Quaternion().setFromEuler(euler)
+        );
+        chassisApi.current.setLinvel(vecArrayToObject([0, 0, 0]));
+        chassisApi.current.setAngvel(vecArrayToObject([0, 0, 0]));
+      }
+      frameCount.current++;
+    } catch (e) {
+      console.log(e);
+      console.log(props.controllable);
     }
   });
 
   return (
-    <group ref={vehicle}>
-      {controllable ? (
+    <group>
+      {props.controllable ? (
         <mesh ref={mouseXZPlaneIndicator} visible={false}>
           <meshBasicMaterial color={"pink"} />
           <sphereGeometry args={[0.5]} />
         </mesh>
       ) : null}
-      <Chassis ref={chassisBody} />
-      <Wheel ref={wheels[0]} radius={radius} leftSide />
-      <Wheel ref={wheels[1]} radius={radius} />
-      <Wheel ref={wheels[2]} radius={radius} leftSide />
-      <Wheel ref={wheels[3]} radius={radius} />
+      <Chassis {...props} ref={chassisApi} />
+      <Wheel ref={wheels[0]} radius={wheelRadius} leftSide />
+      <Wheel ref={wheels[1]} radius={wheelRadius} />
+      <Wheel ref={wheels[2]} radius={wheelRadius} leftSide />
+      <Wheel ref={wheels[3]} radius={wheelRadius} />
     </group>
   );
+}
+
+function createJoints(
+  chassisApi: RigidBodyApiRef,
+  wheels: RigidBodyApiRef[],
+  positions?: {
+    front?: number;
+    back?: number;
+    horizontal?: number;
+    height?: number;
+  }
+): JointApi[] {
+  const {
+    front = 1.4,
+    back = 1.4,
+    horizontal = 0.7,
+    height = 0.6,
+  } = positions ?? {};
+  return [
+    useRevoluteJoint(
+      chassisApi as RigidBodyApiRef,
+      wheels[0] as RigidBodyApiRef,
+      [
+        [-horizontal, -height, front],
+        [0, 0, 0],
+        [1, 0, 0],
+      ]
+    ),
+    useRevoluteJoint(
+      chassisApi as RigidBodyApiRef,
+      wheels[1] as RigidBodyApiRef,
+      [
+        [horizontal, -height, front],
+        [0, 0, 0],
+        [1, 0, 0],
+      ]
+    ),
+    useRevoluteJoint(
+      chassisApi as RigidBodyApiRef,
+      wheels[2] as RigidBodyApiRef,
+      [
+        [-horizontal, -height, -back],
+        [0, 0, 0],
+        [1, 0, 0],
+      ]
+    ),
+    useRevoluteJoint(
+      chassisApi as RigidBodyApiRef,
+      wheels[3] as RigidBodyApiRef,
+      [
+        [horizontal, -height, -back],
+        [0, 0, 0],
+        [1, 0, 0],
+      ]
+    ),
+  ];
 }
 
 export default Vehicle;
