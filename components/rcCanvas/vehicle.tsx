@@ -21,16 +21,9 @@ import { useControls } from "./useControls";
 import { Wheel } from "./wheel";
 import { Vector3 } from "@react-three/fiber";
 import { DataConnection } from "peerjs";
-
-type MessagePayload = {
-  pos: [number, number, number];
-  rot: [number, number, number];
-  vel: [number, number, number];
-  angVel: [number, number, number];
-};
+import { useGameState } from "./rcCanvas";
 
 export type VehicleProps = RigidBodyProps & {
-  connection?: DataConnection | null;
   wheelPosition?: {
     back: number;
     front: number;
@@ -81,7 +74,6 @@ function Vehicle(props: VehicleProps) {
   const mouseRay = useMemo(() => new THREE.Raycaster(), []);
 
   useEffect(() => {
-    console.log("Vehicle useEffect controllable=" + props.controllable);
     for (let i = 0; i < joints.current.length; i++) {
       joints.current[i].configureMotorPosition(
         props.targetTravel ?? 0,
@@ -89,23 +81,30 @@ function Vehicle(props: VehicleProps) {
         props.dampening ?? 0
       );
     }
-    if (!props.controllable && props.connection) {
-      props.connection.on("data", (data: unknown) => {
-        let payload = data as MessagePayload;
-        payload.pos[2] *= -1;
-        payload.vel[2] *= -1;
+    if (!props.controllable) {
+      useGameState.subscribe(
+        (state) => state.lastMessageFromPeer,
+        (currentMessage, lastMessage) => {
+          if (currentMessage == null) return;
 
-        payload.rot[1] += Math.PI;
-        payload.rot[0] *= -1;
-        payload.angVel[0] *= -1;
+          let payload = currentMessage.vehicle;
+          payload.pos[2] *= -1;
+          payload.vel[2] *= -1;
 
-        chassisApi.current.setTranslation(tempEuler.fromArray(payload.pos));
-        chassisApi.current.setRotation(
-          tempQuaternion.setFromEuler(tempEuler.fromArray(payload.rot))
-        );
-        chassisApi.current.setLinvel(tempEuler.fromArray(payload.vel));
-        chassisApi.current.setAngvel(tempEuler.fromArray(payload.angVel));
-      });
+          payload.rot[1] += Math.PI;
+          payload.rot[0] *= -1;
+          payload.angVel[0] *= -1;
+
+          chassisApi.current.setTranslation(tempEuler.fromArray(payload.pos));
+          chassisApi.current.setRotation(
+            tempQuaternion.setFromEuler(tempEuler.fromArray(payload.rot))
+          );
+          chassisApi.current.setLinvel(tempEuler.fromArray(payload.vel));
+          chassisApi.current.setAngvel(tempEuler.fromArray(payload.angVel));
+        }
+      );
+    } else {
+      useGameState.setState({ vehicleApi: chassisApi.current });
     }
   }, []);
 
@@ -129,8 +128,8 @@ function Vehicle(props: VehicleProps) {
           .sub(chassisApi.current.translation());
 
         const currentRotation = chassisApi.current.rotation();
-        const forwardVec = tempVec3.set(0, 0, 1);
-        forwardVec.applyQuaternion(currentRotation); //apply the orientation of
+        const forwardVec = tempVec3.set(1, 0, 0);
+        forwardVec.applyQuaternion(currentRotation);
 
         const angleToPointer = forwardVec.angleTo(vecToPointer);
         const cross = forwardVec.cross(vecToPointer);
@@ -174,22 +173,9 @@ function Vehicle(props: VehicleProps) {
 
         const direction = cross.x > 0 ? 1 : -1;
         const torque = angleToPointer * 4000 * delta;
-        chassisApi.current.applyTorqueImpulse(
-          vecArrayToObject([direction * torque, 0, 0])
-        );
-
-        if (frameCount.current % 2 == 0) {
-          const payload: MessagePayload = {
-            pos: chassisApi.current.translation().toArray(),
-            rot: tempEuler
-              .setFromQuaternion(chassisApi.current.rotation())
-              .toArray()
-              .slice(0, 3) as any,
-            vel: chassisApi.current.linvel().toArray(),
-            angVel: chassisApi.current.angvel().toArray(),
-          };
-          props.connection?.send(payload);
-        }
+        // chassisApi.current.applyTorqueImpulse(
+        //   vecArrayToObject([direction * torque, 0, 0])
+        // );
       }
 
       if (reset) {
@@ -213,7 +199,7 @@ function Vehicle(props: VehicleProps) {
   return (
     <group>
       {props.controllable ? (
-        <mesh ref={mouseXZPlaneIndicator} visible={false}>
+        <mesh ref={mouseXZPlaneIndicator} visible={true}>
           <meshBasicMaterial color={"pink"} />
           <sphereGeometry args={[0.5]} />
         </mesh>

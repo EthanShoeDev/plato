@@ -75,7 +75,7 @@ export const Chassis = forwardRef<RigidBodyApi>(
         canSleep={false}
         enabledTranslations={[false, true, true]}
         enabledRotations={[true, false, false]}
-        angularDamping={5}
+        angularDamping={10}
         onSleep={() => console.log("chassis sleeping")}
         userData={{ name: "chassis" }}
       >
