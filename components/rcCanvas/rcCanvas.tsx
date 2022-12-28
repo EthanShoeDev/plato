@@ -44,6 +44,7 @@ export interface GameState {
   ballApi: RigidBodyApi | null;
   vehicleApi: RigidBodyApi | null;
   connectionIntervalId: number | null;
+  isHost: boolean | null;
 }
 
 export const useGameState = create<GameState>()(
@@ -56,6 +57,7 @@ export const useGameState = create<GameState>()(
     ballApi: null,
     vehicleApi: null,
     connectionIntervalId: null,
+    isHost: null,
   }))
 );
 
@@ -118,6 +120,7 @@ function Scene() {
       useGameState.setState({
         activeConnection: conn,
         connectionIntervalId: intervalId,
+        isHost: true,
       });
       conn.on("data", (data) => {
         updateFromPeer(data as MessagePayload);
@@ -242,6 +245,7 @@ const RCCanvas = () => {
             useGameState.setState({
               activeConnection: connection,
               connectionIntervalId: intervalId,
+              isHost: false
             });
             const { updateFromPeer } = useGameState.getState();
             connection.on("data", (data) => {

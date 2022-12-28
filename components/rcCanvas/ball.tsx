@@ -16,14 +16,17 @@ export default function Ball(props: RigidBodyProps & { radius: number }) {
     []
   );
   const body = useRef<RigidBodyApi>(null!);
-  const tempEuler = useMemo(() => new THREE.Euler(), []);
+  const tempVec3 = useMemo(() => new THREE.Vector3(), []);
   const tempQuaternion = useMemo(() => new THREE.Quaternion(), []);
+  const tempEuler = useMemo(() => new THREE.Euler(), []);
+  const isHost = useGameState((state) => state.isHost);
+
   useEffect(() => {
     useGameState.setState({ ballApi: body.current });
-    useGameState.subscribe(
+    const unSubscribe = useGameState.subscribe(
       (state) => state.lastMessageFromPeer,
       (currentMessage, lastMessage) => {
-        if (currentMessage == null || lastMessage == null) return;
+        if (currentMessage == null || lastMessage == null || isHost) return;
 
         let payload = currentMessage.ball;
         payload.pos[2] *= -1;
@@ -33,15 +36,19 @@ export default function Ball(props: RigidBodyProps & { radius: number }) {
         payload.rot[0] *= -1;
         payload.angVel[0] *= -1;
 
-        body.current.setTranslation(tempEuler.fromArray(payload.pos));
-        body.current.setRotation(
-          tempQuaternion.setFromEuler(tempEuler.fromArray(payload.rot))
-        );
-        body.current.setLinvel(tempEuler.fromArray(payload.vel));
-        body.current.setAngvel(tempEuler.fromArray(payload.angVel));
+        const currentPos = body.current.translation();
+        if (currentPos.distanceTo(tempVec3.fromArray(payload.pos)) > 0.1) {
+          body.current.setTranslation(tempVec3.fromArray(payload.pos));
+          body.current.setRotation(
+            tempQuaternion.setFromEuler(tempEuler.fromArray(payload.rot))
+          );
+          body.current.setLinvel(tempVec3.fromArray(payload.vel));
+          body.current.setAngvel(tempVec3.fromArray(payload.angVel));
+        }
       }
     );
-  }, []);
+    return unSubscribe;
+  }, [isHost]);
 
   useFrame(() => {
     const { reset } = controls.current;
