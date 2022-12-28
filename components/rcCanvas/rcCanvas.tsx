@@ -32,6 +32,7 @@ export type PhysicsPacket = {
 };
 
 export type MessagePayload = {
+  messageIdx: number;
   vehicle: PhysicsPacket;
   ball: PhysicsPacket;
 };
@@ -63,12 +64,13 @@ export const useGameState = create<GameState>()(
 
 function pollData(conn: DataConnection): number {
   const tempEuler = new THREE.Euler();
-
+  let idx = 0;
   return window.setInterval(() => {
     const { vehicleApi, ballApi } = useGameState.getState();
     if (!vehicleApi || !ballApi) return;
 
     const payload: MessagePayload = {
+      messageIdx: idx++,
       vehicle: {
         pos: vehicleApi.translation().toArray(),
         rot: tempEuler
@@ -245,7 +247,7 @@ const RCCanvas = () => {
             useGameState.setState({
               activeConnection: connection,
               connectionIntervalId: intervalId,
-              isHost: false
+              isHost: false,
             });
             const { updateFromPeer } = useGameState.getState();
             connection.on("data", (data) => {

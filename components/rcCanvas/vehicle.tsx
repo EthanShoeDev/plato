@@ -85,7 +85,12 @@ function Vehicle(props: VehicleProps) {
       useGameState.subscribe(
         (state) => state.lastMessageFromPeer,
         (currentMessage, lastMessage) => {
-          if (currentMessage == null) return;
+          if (
+            currentMessage == null ||
+            lastMessage == null ||
+            currentMessage.messageIdx < lastMessage.messageIdx
+          )
+            return;
 
           let payload = currentMessage.vehicle;
           payload.pos[2] *= -1;
@@ -173,9 +178,9 @@ function Vehicle(props: VehicleProps) {
 
         const direction = cross.x > 0 ? 1 : -1;
         const torque = angleToPointer * 4000 * delta;
-        // chassisApi.current.applyTorqueImpulse(
-        //   vecArrayToObject([direction * torque, 0, 0])
-        // );
+        chassisApi.current.applyTorqueImpulse(
+          vecArrayToObject([direction * torque, 0, 0])
+        );
       }
 
       if (reset) {

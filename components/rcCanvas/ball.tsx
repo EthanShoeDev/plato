@@ -26,7 +26,13 @@ export default function Ball(props: RigidBodyProps & { radius: number }) {
     const unSubscribe = useGameState.subscribe(
       (state) => state.lastMessageFromPeer,
       (currentMessage, lastMessage) => {
-        if (currentMessage == null || lastMessage == null || isHost) return;
+        if (
+          currentMessage == null ||
+          lastMessage == null ||
+          isHost ||
+          currentMessage.messageIdx < lastMessage.messageIdx
+        )
+          return;
 
         let payload = currentMessage.ball;
         payload.pos[2] *= -1;
