@@ -71,6 +71,7 @@ function Vehicle(props: VehicleProps) {
 
   const { camera } = useThree();
   const mouseXZPlaneIndicator = useRef<THREE.Mesh>(null!);
+  const mouseDirectionArrow = useRef<THREE.Mesh>(null!);
   const mouseRay = useMemo(() => new THREE.Raycaster(), []);
 
   useEffect(() => {
@@ -116,7 +117,6 @@ function Vehicle(props: VehicleProps) {
   const tempVec3 = useMemo(() => new THREE.Vector3(), []);
   const tempEuler = useMemo(() => new THREE.Euler(), []);
   const tempQuaternion = useMemo(() => new THREE.Quaternion(), []);
-  const frameCount = useRef(0);
   useFrame((state, delta) => {
     try {
       const { backward, boost, forward, reset, spin, jump } = controls.current;
@@ -132,12 +132,27 @@ function Vehicle(props: VehicleProps) {
           .current!.position.clone()
           .sub(chassisApi.current.translation());
 
-        const currentRotation = chassisApi.current.rotation();
-        const forwardVec = tempVec3.set(1, 0, 0);
-        forwardVec.applyQuaternion(currentRotation);
+        // mouseDirectionArrow.current.lookAt(chassisApi.current.translation());
+        mouseDirectionArrow.current.position.copy(
+          mouseXZPlaneIndicator.current.position
+        );
 
-        const angleToPointer = forwardVec.angleTo(vecToPointer);
-        const cross = forwardVec.cross(vecToPointer);
+        const currentRotation = chassisApi.current.rotation();
+        tempVec3.set(0, 0, 1);
+        tempVec3.applyQuaternion(currentRotation);
+
+        const angleToPointer = tempVec3.angleTo(vecToPointer);
+
+        const cross = tempVec3.cross(vecToPointer);
+        const direction = cross.x > 0 ? 1 : -1;
+        const offset = angleToPointer + Math.PI / 2;
+        mouseDirectionArrow.current.rotation.set(offset * direction, 0, 0);
+        const torque = angleToPointer * 7000 * delta;
+
+        if (angleToPointer > 0.1)
+          chassisApi.current.applyTorqueImpulse(
+            vecArrayToObject([direction * torque, 0, 0])
+          );
 
         if (boost) {
           chassisApi.current.applyImpulse(
@@ -175,12 +190,6 @@ function Vehicle(props: VehicleProps) {
         //     carRotation.current[2] + Math.PI
         //   );
         // }
-
-        const direction = cross.x > 0 ? 1 : -1;
-        const torque = angleToPointer * 4000 * delta;
-        chassisApi.current.applyTorqueImpulse(
-          vecArrayToObject([direction * torque, 0, 0])
-        );
       }
 
       if (reset) {
@@ -194,7 +203,6 @@ function Vehicle(props: VehicleProps) {
         chassisApi.current.setLinvel(vecArrayToObject([0, 0, 0]));
         chassisApi.current.setAngvel(vecArrayToObject([0, 0, 0]));
       }
-      frameCount.current++;
     } catch (e) {
       console.log(e);
       console.log(props.controllable);
@@ -214,6 +222,10 @@ function Vehicle(props: VehicleProps) {
       <Wheel ref={wheels[1]} radius={wheelRadius} />
       <Wheel ref={wheels[2]} radius={wheelRadius} leftSide />
       <Wheel ref={wheels[3]} radius={wheelRadius} />
+      <mesh ref={mouseDirectionArrow} visible={false}>
+        <meshBasicMaterial color={"pink"} />
+        <cylinderGeometry args={[0.2, 0.2, 3]} />
+      </mesh>
     </group>
   );
 }
