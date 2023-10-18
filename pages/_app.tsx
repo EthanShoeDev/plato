@@ -3,6 +3,7 @@ import type { AppProps } from "next/app";
 import { MDXProvider } from "@mdx-js/react";
 import Image from "next/image";
 import ClientSideSyntaxHighlight from "../components/clientSyntaxHighlighting";
+import { Analytics } from '@vercel/analytics/react';
 
 const ResponsiveImage = (props: any) => (
   <Image alt={props.alt} layout="responsive" {...props} />
@@ -19,8 +20,11 @@ const components = {
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <MDXProvider components={components}>
-      <Component {...pageProps} />
-    </MDXProvider>
+    <>
+      <Analytics />
+      <MDXProvider components={components}>
+        <Component {...pageProps} />
+      </MDXProvider>
+    </>
   );
 }
