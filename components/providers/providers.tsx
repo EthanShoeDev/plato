@@ -1,17 +1,17 @@
-'use client'
+'use client';
 
-import { ThemeProvider } from 'next-themes'
-import { PropsWithChildren } from 'react'
+import { PropsWithChildren } from 'react';
+import { ThemeProvider } from 'next-themes';
 
 export function Providers({ children }: PropsWithChildren) {
-    return (
-        <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-        >
-            {children}
-        </ThemeProvider>
-    )
+  return (
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
+      {children}
+    </ThemeProvider>
+  );
 }

@@ -1,5 +1,6 @@
 {
-    "conventionalCommits.scopes": [
-        "all"
-    ]
+  "conventionalCommits.scopes": [
+    "all",
+    "dx"
+  ]
 }
