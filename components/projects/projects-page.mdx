@@ -1,33 +1,46 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Button } from '../ui/button';
+import { Card } from '../ui/card';
 
-# Welcome to my MDX page!
+export const foo = {
+  hi: `Fudge ${Button.displayName || 'Button'}`,
+  authors: ['fred', 'sally'],
+};
 
-This is some **bold** and _italics_ text.
+export const hello = 'hello';
 
-This is a list in markdown:
+# Hello, world!
 
-- One
-- Two
-- Three
+# Hello, world!
 
-Checkout my React component:
+I'm an awesome paragraph.
 
-<Card>
-  <CardHeader>
-    <CardTitle>Card Title</CardTitle>
-    <CardDescription>Card Description</CardDescription>
-  </CardHeader>
-  <CardContent>
-    <p>Card Content</p>
-  </CardContent>
-  <CardFooter>
-    <p>Card Footer</p>
-  </CardFooter>
+{/* I'm a comment */}
+
+<Card bg="red">
+    <Button>hi                                            </Button>
+
+{ hello }
+
+{/* another comment */}
+
 </Card>
+
+```plaintext
+test codeblock
+```
+
+```js
+module.exports = 'test';
+```
+
+```sh
+npm i -g Card
+```
+
+| Test | Table |
+| :--- | :---- |
+| Col1 | Col2  |
+
+export   default     ({children   }) => < div>{    children}</div
+
+>

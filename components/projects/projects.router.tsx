@@ -10,7 +10,7 @@ export const projectRoutes = {
   'rocket-car/demo': RocketCarPage,
   '': IndexPage,
 };
-
+let a;
 export function projectsRouter(slug?: string[]) {
   const stringSlug = slug ? slug.join('/') : '';
   if (!Object.keys(projectRoutes).includes(stringSlug)) throw new Error();

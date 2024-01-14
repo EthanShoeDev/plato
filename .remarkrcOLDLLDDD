@@ -1,0 +1,27 @@
+{
+  "settings": {
+    "bullet": "*"
+  },
+  "plugins": [
+    "remark-preset-lint-consistent",
+    "remark-preset-lint-markdown-style-guide",
+    "remark-preset-lint-recommended",
+    [
+      "remark-toc",
+      {
+        "heading": "contents"
+      }
+    ],
+    "remark-frontmatter",
+    [
+      "remark-lint-frontmatter-schema",
+      {
+        "schemas": {
+          "types/content.schema.yaml": [
+            "components/**/*.mdx"
+          ]
+        }
+      }
+    ]
+  ]
+}
