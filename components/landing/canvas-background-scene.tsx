@@ -36,7 +36,7 @@ function Rays({ count = 100000, speed = 0.01 }) {
         color: colors[Math.floor(Math.random() * 5)],
         scale: 1,
       })),
-    [count]
+    [count],
   );
   const ref = useRef<THREE.InstancedMesh>(null!);
   const colorArray = useMemo(
@@ -44,9 +44,9 @@ function Rays({ count = 100000, speed = 0.01 }) {
       Float32Array.from(
         new Array(count)
           .fill(null)
-          .flatMap((_, i) => tempColor.set(data[i].color).toArray())
+          .flatMap((_, i) => tempColor.set(data[i].color).toArray()),
       ),
-    [count, data]
+    [count, data],
   );
 
   useLayoutEffect(() => {
@@ -103,7 +103,7 @@ export const CanvasBackgroundScene = () => {
   useEffect(() => {
     if (!scrollChildRef?.current) return;
     targetRef.current = scrollChildRef.current?.closest(
-      '[data-radix-scroll-area-viewport]'
+      '[data-radix-scroll-area-viewport]',
     );
   }, []);
 
@@ -122,7 +122,7 @@ export const CanvasBackgroundScene = () => {
 
   useEffect(
     () => console.log('switchToStaticPos', switchToStaticPos),
-    [switchToStaticPos]
+    [switchToStaticPos],
   );
 
   return (
@@ -130,13 +130,13 @@ export const CanvasBackgroundScene = () => {
       <div
         className={cn(
           'w-full z-[-2]',
-          switchToStaticPos ? 'h-screen' : 'h-[200vh]'
+          switchToStaticPos ? 'h-screen' : 'h-[200vh]',
         )}
       />
       <div
         className={cn(
           'fixed w-full h-screen bg-primary top-0 left-0 pointer-events-none z-[-1] ',
-          switchToStaticPos && 'relative'
+          switchToStaticPos && 'relative',
         )}
       >
         <Canvas
@@ -149,7 +149,7 @@ export const CanvasBackgroundScene = () => {
         </Canvas>
         <TypeAnimationHeading
           className={cn(
-            'mx-auto text-4xl font-[600] top-1/2 left-0 right-0 w-full absolute z-10 text-center'
+            'mx-auto text-4xl font-[600] top-1/2 left-0 right-0 w-full absolute z-10 text-center',
           )}
         />
       </div>
