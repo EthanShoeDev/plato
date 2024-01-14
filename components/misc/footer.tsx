@@ -108,7 +108,8 @@ export function Footer(props: ComponentProps<typeof NavigationMenu>) {
         </NavigationMenuItem>
         <NavigationMenuItem>
           <Link href="/docs" legacyBehavior passHref>
-            <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+            {/* <NavigationMenuLink className={navigationMenuTriggerStyle()}> */}
+            <NavigationMenuLink className={''}>
               Documentation
             </NavigationMenuLink>
           </Link>

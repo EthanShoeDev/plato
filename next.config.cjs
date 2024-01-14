@@ -1,7 +1,8 @@
+import { NextConfig } from 'next';
+import withBundleAnalyzer from '@next/bundle-analyzer';
 import createMDX from '@next/mdx';
 import remarkGfm from 'remark-gfm';
 
-/** @type {import('next').NextConfig} */
 const nextConfig = {
   // Configure `pageExtensions`` to include MDX files
   pageExtensions: ['js', 'jsx', 'mdx', 'ts', 'tsx'],
@@ -15,6 +16,10 @@ const withMDX = createMDX({
     rehypePlugins: [],
   },
 });
+
+// const bundleAnalyzer = withBundleAnalyzer({
+//   enabled: process.env.ANALYZE === 'true',
+// });
 
 // Merge MDX config with Next.js config
 export default withMDX(nextConfig);

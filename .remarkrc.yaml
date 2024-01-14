@@ -1,21 +1,24 @@
 settings:
   bullet: '*'
 plugins:
-  # Check that markdown is consistent.
   - remark-preset-lint-consistent
-  # Few recommended rules.
+  - remark-preset-lint-markdown-style-guide
   - remark-preset-lint-recommended
   # Generate a table of contents in `## Contents`
   - - remark-toc
     - heading: contents
-  - remark-frontmatter
 
+  - remark-frontmatter
   - - remark-lint-frontmatter-schema
     - schemas:
         types/project.schema.yaml:
-          - components/projects/rocket-car/rocket-car-page.mdx
-          - README.md
+          - '**/*.mdx'
+
+  - remark-lint-blockquote-indentation
+  - remark-lint-no-duplicate-headings
+  - remark-lint-no-duplicate-headings-in-section
+
+  - preset-prettier
 
   # - remark-preset-lint-consistent
-  # - remark-preset-lint-markdown-style-guide
   # - remark-preset-lint-recommended
