@@ -1,5 +1,5 @@
 {
-  "conventionalCommits.scopes": ["all", "dx"],
+  "conventionalCommits.scopes": ["all", "dx", "mdx"],
   "[markdown]": {
     "editor.defaultFormatter": "unifiedjs.vscode-remark",
     "editor.formatOnSave": true
