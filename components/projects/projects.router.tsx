@@ -1,5 +1,9 @@
+import dictionary from 'dictionary-en';
+
 import { default as IndexPage } from './projects-page.mdx';
 import { default as RocketCarPage } from './rocket-car/rocket-car-page.mdx';
+
+console.log(dictionary);
 
 export const projectRoutes = {
   'rocket-car': RocketCarPage,

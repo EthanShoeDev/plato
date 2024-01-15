@@ -28,7 +28,8 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "**/*.mdx"
+    "**/*.mdx",
+    ".remarkrc.mjs"
   ],
   "exclude": ["node_modules"]
 }
