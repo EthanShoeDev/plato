@@ -1,6 +1,7 @@
+// .prettierrc.mjs
 /** @type {import("prettier").Config} */
-module.exports = {
-  plugins: [resolve('prettier-plugin-astro')],
+export default {
+  plugins: ['prettier-plugin-astro'],
   overrides: [
     {
       files: '*.astro',

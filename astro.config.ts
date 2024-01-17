@@ -7,15 +7,21 @@ import sitemap from "@astrojs/sitemap";
 
 // https://astro.build/config
 export default defineConfig({
-  integrations: [mdx(), tailwind({
-    applyBaseStyles: false
-  }), react(), sitemap()],
+  site: "https://ethanshoe.dev",
+  integrations: [
+    mdx(),
+    tailwind({
+      applyBaseStyles: false,
+    }),
+    react(),
+    sitemap(),
+  ],
   build: {
-    format: "file"
+    format: "file",
   },
   trailingSlash: "never",
   prefetch: {
     prefetchAll: true,
-    defaultStrategy: 'viewport'
-  }
+    defaultStrategy: "viewport",
+  },
 });
