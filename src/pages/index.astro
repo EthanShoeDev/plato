@@ -1,8 +1,41 @@
 ---
-import "@/styles/globals.css";
-import CanvasBackgroundScene from "@/components/landing/canvas-background-scene";
+import '@/styles/globals.css';
+
+import { Skeleton } from '@/components/ui/skeleton';
+import CanvasBackgroundScene from '@/components/landing/canvas-background-scene';
+import { DarkModeToggle } from '@/components/misc/dark-mode-toggle';
+
+const isSSR = import.meta.env.SSR;
 ---
 
+<script is:inline>
+  (() => {
+    const getThemePreference = () => {
+      if (
+        typeof localStorage !== 'undefined' &&
+        localStorage.getItem('theme')
+      ) {
+        return localStorage.getItem('theme');
+      }
+      return window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'dark'
+        : 'light';
+    };
+    const isDark = getThemePreference() === 'dark';
+    document.documentElement.classList[isDark ? 'add' : 'remove']('dark');
+
+    if (typeof localStorage !== 'undefined') {
+      const observer = new MutationObserver(() => {
+        const isDark = document.documentElement.classList.contains('dark');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      });
+      observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class'],
+      });
+    }
+  })();
+</script>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -11,7 +44,18 @@ import CanvasBackgroundScene from "@/components/landing/canvas-background-scene"
     <meta name="generator" content={Astro.generator} />
     <title>Astro</title>
   </head>
-  <body>
-    <CanvasBackgroundScene client:load />
+  <body class="bg-background h-screen w-screen">
+    {
+      isSSR ? (
+        <div class="h-screen w-screen p-4 box-content">
+          <Skeleton className="w-full h-full rounded-lg" />
+        </div>
+      ) : (
+        <CanvasBackgroundScene client:only="react" />
+      )
+    }
+    <div class="bg-blue h-screen w-full">
+      <DarkModeToggle client:load />
+    </div>
   </body>
 </html>

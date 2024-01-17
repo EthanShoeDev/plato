@@ -1,15 +1,15 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { useScroll } from "@use-gesture/react";
-import * as THREE from "three";
-import { useWindowSize } from "usehooks-ts";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { useWindowSize } from '@uidotdev/usehooks';
+import { useScroll } from '@use-gesture/react';
+import * as THREE from 'three';
 
-import { useCssVar } from "@/lib/hooks/useCssVar.hook";
-import { cn } from "@/lib/utils";
+import { useCssVar } from '@/lib/hooks/useCssVar.hook';
+import { cn } from '@/lib/utils';
 
-import TypeAnimationHeading from "./type-animation-heading";
+import TypeAnimationHeading from './type-animation-heading';
 
-const colors = ["#69d2e7", "#a7dbd8", "#e0e4cc", "#f38630", "#fa6900"];
+const colors = ['#69d2e7', '#a7dbd8', '#e0e4cc', '#f38630', '#fa6900'];
 
 const randRange = (range: number, center = 0) =>
   Math.random() * range - range / 2 + center;
@@ -87,49 +87,37 @@ function Rays({ count = 100000, speed = 0.01 }) {
 
 export default function CanvasBackgroundScene() {
   const windowSize = useWindowSize();
-  // const windowSize = { height: 1000 };
-
-  const scrollChildRef = useRef<HTMLDivElement>(null);
   const [scrollPosition, setScrollPosition] = useState(0);
-  const targetRef = useRef<EventTarget | null>(null);
-
-  useEffect(() => {
-    if (!scrollChildRef?.current) return;
-    targetRef.current = scrollChildRef.current?.closest(
-      "[data-radix-scroll-area-viewport]",
-    );
-  }, []);
-
-  useScroll((state) => setScrollPosition(state.xy[1]), {
-    target: targetRef,
+  useScroll(({ xy: [, y] }) => setScrollPosition(y), {
+    target: window,
   });
 
-  const switchToStaticPos = scrollPosition > windowSize.height;
+  const switchToStaticPos = scrollPosition > (windowSize?.height ?? 9999);
 
-  const bgColorString = useCssVar("--background", "0 0% 3.9%")!;
+  const bgColorString = useCssVar('--background', '0 0% 3.9%')!;
   const bgColor = useMemo(() => {
     const c = new THREE.Color();
-    c.setStyle(`hsl(${bgColorString.split(" ").join(", ")})`);
+    c.setStyle(`hsl(${bgColorString.split(' ').join(', ')})`);
     return c;
   }, [bgColorString]);
 
   useEffect(
-    () => console.log("switchToStaticPos", switchToStaticPos),
+    () => console.log('switchToStaticPos', switchToStaticPos),
     [switchToStaticPos],
   );
 
   return (
-    <div ref={scrollChildRef}>
+    <div>
       <div
         className={cn(
-          "w-full z-[-2]",
-          switchToStaticPos ? "h-screen" : "h-[200vh]",
+          'w-full z-[-2]',
+          switchToStaticPos ? 'h-screen' : 'h-[200vh]',
         )}
       />
       <div
         className={cn(
-          "fixed w-full h-screen bg-primary top-0 left-0 pointer-events-none z-[-1] ",
-          switchToStaticPos && "relative",
+          'fixed w-full h-screen bg-primary top-0 left-0 pointer-events-none z-[-1] ',
+          switchToStaticPos && 'relative',
         )}
       >
         <Canvas
@@ -142,7 +130,7 @@ export default function CanvasBackgroundScene() {
         </Canvas>
         <TypeAnimationHeading
           className={cn(
-            "mx-auto text-4xl font-[600] top-1/2 left-0 right-0 w-full absolute z-10 text-center",
+            'mx-auto text-4xl font-[600] top-1/2 left-0 right-0 w-full absolute z-10 text-center',
           )}
         />
       </div>
