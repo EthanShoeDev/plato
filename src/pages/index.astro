@@ -1,11 +1,8 @@
 ---
 import '@/styles/globals.css';
 
-import { Skeleton } from '@/components/ui/skeleton';
-import CanvasBackgroundScene from '@/components/landing/canvas-background-scene';
+import { CanvasBackgroundSceneSSR } from '@/components/landing/canvas-background-scene-ssr';
 import { DarkModeToggle } from '@/components/misc/dark-mode-toggle';
-
-const isSSR = import.meta.env.SSR;
 ---
 
 <script is:inline>
@@ -44,17 +41,10 @@ const isSSR = import.meta.env.SSR;
     <meta name="generator" content={Astro.generator} />
     <title>Astro</title>
   </head>
-  <body class="bg-background h-screen w-screen">
-    {
-      isSSR ? (
-        <div class="h-screen w-screen p-4 box-content">
-          <Skeleton className="w-full h-full rounded-lg" />
-        </div>
-      ) : (
-        <CanvasBackgroundScene client:only="react" />
-      )
-    }
-    <div class="bg-blue h-screen w-full">
+  <body class="bg-background h-screen w-full">
+    <CanvasBackgroundSceneSSR client:load />
+
+    <div class="bg-blue h-screen w-full p-4">
       <DarkModeToggle client:load />
     </div>
   </body>

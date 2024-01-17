@@ -7,6 +7,7 @@ import * as THREE from 'three';
 import { useCssVar } from '@/lib/hooks/useCssVar.hook';
 import { cn } from '@/lib/utils';
 
+import { Skeleton } from '../ui/skeleton';
 import TypeAnimationHeading from './type-animation-heading';
 
 const colors = ['#69d2e7', '#a7dbd8', '#e0e4cc', '#f38630', '#fa6900'];
@@ -85,7 +86,11 @@ function Rays({ count = 100000, speed = 0.01 }) {
   );
 }
 
-export default function CanvasBackgroundScene() {
+export function CanvasBackgroundScene({
+  children,
+}: {
+  children?: React.ReactNode;
+}) {
   const windowSize = useWindowSize();
   const [scrollPosition, setScrollPosition] = useState(0);
   useScroll(({ xy: [, y] }) => setScrollPosition(y), {
@@ -116,7 +121,7 @@ export default function CanvasBackgroundScene() {
       />
       <div
         className={cn(
-          'fixed w-full h-screen bg-primary top-0 left-0 pointer-events-none z-[-1] ',
+          'fixed w-full h-screen bg-primary top-0 left-0 ',
           switchToStaticPos && 'relative',
         )}
       >
@@ -128,11 +133,7 @@ export default function CanvasBackgroundScene() {
           <Rays count={400} speed={scrollPosition} />
           <fog attach="fog" color={bgColor} near={50} far={400} />
         </Canvas>
-        <TypeAnimationHeading
-          className={cn(
-            'mx-auto text-4xl font-[600] top-1/2 left-0 right-0 w-full absolute z-10 text-center',
-          )}
-        />
+        {children}
       </div>
     </div>
   );
