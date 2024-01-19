@@ -39,13 +39,13 @@ import { DarkModeToggle } from '@/components/misc/dark-mode-toggle';
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
-    <title>Astro</title>
+    <title>Plato</title>
   </head>
-  <body class="bg-background h-screen w-full">
+  <body class="bg-background">
     <CanvasBackgroundSceneSSR client:load />
 
-    <div class="bg-blue h-screen w-full p-4">
-      <DarkModeToggle client:load />
+    <div class="h-screen w-full p-4 flex flex-col">
+      <DarkModeToggle client:load className="ml-auto" />
     </div>
   </body>
 </html>

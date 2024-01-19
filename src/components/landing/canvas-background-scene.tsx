@@ -8,7 +8,7 @@ import { useCssVar } from '@/lib/hooks/useCssVar.hook';
 import { cn } from '@/lib/utils';
 
 import { Skeleton } from '../ui/skeleton';
-import TypeAnimationHeading from './type-animation-heading';
+import { TypeAnimationHeading } from './type-animation-heading';
 
 const colors = ['#69d2e7', '#a7dbd8', '#e0e4cc', '#f38630', '#fa6900'];
 
@@ -86,18 +86,11 @@ function Rays({ count = 100000, speed = 0.01 }) {
   );
 }
 
-export function CanvasBackgroundScene({
-  children,
-}: {
-  children?: React.ReactNode;
-}) {
-  const windowSize = useWindowSize();
+export function CanvasBackgroundScene() {
   const [scrollPosition, setScrollPosition] = useState(0);
   useScroll(({ xy: [, y] }) => setScrollPosition(y), {
     target: window,
   });
-
-  const switchToStaticPos = scrollPosition > (windowSize?.height ?? 9999);
 
   const bgColorString = useCssVar('--background', '0 0% 3.9%')!;
   const bgColor = useMemo(() => {
@@ -106,35 +99,11 @@ export function CanvasBackgroundScene({
     return c;
   }, [bgColorString]);
 
-  useEffect(
-    () => console.log('switchToStaticPos', switchToStaticPos),
-    [switchToStaticPos],
-  );
-
   return (
-    <div>
-      <div
-        className={cn(
-          'w-full z-[-2]',
-          switchToStaticPos ? 'h-screen' : 'h-[200vh]',
-        )}
-      />
-      <div
-        className={cn(
-          'fixed w-full h-screen bg-primary top-0 left-0 ',
-          switchToStaticPos && 'relative',
-        )}
-      >
-        <Canvas
-          gl={{ antialias: true }}
-          camera={{ fov: 50, near: 0.1, far: 1000 }}
-        >
-          <color attach="background" args={[bgColor]} />
-          <Rays count={400} speed={scrollPosition} />
-          <fog attach="fog" color={bgColor} near={50} far={400} />
-        </Canvas>
-        {children}
-      </div>
-    </div>
+    <Canvas gl={{ antialias: true }} camera={{ fov: 50, near: 0.1, far: 1000 }}>
+      <color attach="background" args={[bgColor]} />
+      <Rays count={400} speed={scrollPosition} />
+      <fog attach="fog" color={bgColor} near={50} far={400} />
+    </Canvas>
   );
 }
