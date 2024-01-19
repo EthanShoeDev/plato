@@ -16,9 +16,10 @@ export default defineConfig({
     sitemap(),
   ],
   build: {
-    format: 'file',
+    format: 'directory',
   },
   trailingSlash: 'never',
+  output: 'static',
   prefetch: {
     prefetchAll: true,
     defaultStrategy: 'viewport',

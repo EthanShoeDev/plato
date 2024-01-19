@@ -1,0 +1,3 @@
+- figure out astro layouts
+- write rocket car project page
+- design footer

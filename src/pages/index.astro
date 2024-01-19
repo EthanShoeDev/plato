@@ -2,7 +2,7 @@
 import '@/styles/globals.css';
 
 import { CanvasBackgroundSceneSSR } from '@/components/landing/canvas-background-scene-ssr';
-import { DarkModeToggle } from '@/components/misc/dark-mode-toggle';
+import { LandingContent } from '@/components/landing/landing-content';
 ---
 
 <script is:inline>
@@ -43,9 +43,6 @@ import { DarkModeToggle } from '@/components/misc/dark-mode-toggle';
   </head>
   <body class="bg-background">
     <CanvasBackgroundSceneSSR client:load />
-
-    <div class="h-screen w-full p-4 flex flex-col">
-      <DarkModeToggle client:load className="ml-auto" />
-    </div>
+    <LandingContent client:load />
   </body>
 </html>

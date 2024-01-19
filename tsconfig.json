@@ -1,6 +1,6 @@
 {
-  // "extends": "astro/tsconfigs/strictest", //TODO: diff rules from strict
-  "extends": "astro/tsconfigs/strict",
+  "extends": "astro/tsconfigs/strictest", //TODO: diff rules from strict
+  // "extends": "astro/tsconfigs/strict",
   "exclude": ["_next_implementation/", "node_modules/", "dist/", "public/"],
   "compilerOptions": {
     "jsx": "react-jsx",
@@ -8,6 +8,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "exactOptionalPropertyTypes": false
   }
 }

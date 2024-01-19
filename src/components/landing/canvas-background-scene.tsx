@@ -1,14 +1,9 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { useWindowSize } from '@uidotdev/usehooks';
 import { useScroll } from '@use-gesture/react';
 import * as THREE from 'three';
 
 import { useCssVar } from '@/lib/hooks/useCssVar.hook';
-import { cn } from '@/lib/utils';
-
-import { Skeleton } from '../ui/skeleton';
-import { TypeAnimationHeading } from './type-animation-heading';
 
 const colors = ['#69d2e7', '#a7dbd8', '#e0e4cc', '#f38630', '#fa6900'];
 

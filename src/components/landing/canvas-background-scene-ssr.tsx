@@ -1,11 +1,4 @@
-import React, {
-  lazy,
-  Suspense,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { lazy, Suspense, useMemo, useState } from 'react';
 import { useIsClient, useWindowSize } from '@uidotdev/usehooks';
 import { useScroll } from '@use-gesture/react';
 import { ErrorBoundary } from 'react-error-boundary';
