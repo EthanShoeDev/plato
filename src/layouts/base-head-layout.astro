@@ -1,5 +1,7 @@
 ---
+import '@/styles/globals.css';
 
+import { ViewTransitions } from 'astro:transitions';
 ---
 
 <script is:inline>
@@ -30,10 +32,9 @@
     }
   })();
 </script>
-<head>
-  <meta charset="utf-8" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <meta name="viewport" content="width=device-width" />
-  <meta name="generator" content={Astro.generator} />
-  <title>Plato</title>
-</head>
+<meta charset="utf-8" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<meta name="viewport" content="width=device-width" />
+<meta name="generator" content={Astro.generator} />
+<title>Plato</title>
+<ViewTransitions />
