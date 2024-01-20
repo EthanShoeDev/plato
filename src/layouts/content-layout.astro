@@ -1,6 +1,8 @@
 ---
 import BaseHead from '@/layouts/base-head-layout.astro';
 
+import { NavBar } from '@/components/layouts/nav-bar';
+
 const { title } = Astro.props;
 ---
 
@@ -12,14 +14,7 @@ const { title } = Astro.props;
   <body class="bg-background flex flex-col min-h-screen">
     <div class="bg-background border flex items-center p-4">App Bar</div>
     <div class="grow flex">
-      <nav class="flex flex-col border p-4 border-t-0 gap-4">
-        <a class="hover:underline" href="/">Home</a>
-        <a class="hover:underline" href="/project">Projects</a>
-        <a class="hover:underline" href="/project/rocket-car">Rocket Car</a>
-        <a class="hover:underline" href="/project/rocket-car/intro"
-          >Rocket Car Intro</a
-        >
-      </nav>
+      <NavBar client:load />
       <div class="grow p-4">
         <h1>{title}</h1>
         <slot />
