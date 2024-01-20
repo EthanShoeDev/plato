@@ -1,0 +1,20 @@
+---
+import BaseHead from '@/layouts/base-head-layout.astro';
+
+const { title } = Astro.props;
+---
+
+<html>
+  <head>
+    <title>{title}</title>
+    <BaseHead />
+  </head>
+  <body>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/project">Projects</a>
+    </nav>
+    <h1>{title}</h1>
+    <slot />
+  </body>
+</html>
