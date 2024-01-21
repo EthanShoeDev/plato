@@ -4,21 +4,21 @@ import '@/styles/globals.css';
 import { ViewTransitions } from 'astro:transitions';
 ---
 
-<script is:inline>
+<script>
   (() => {
-    const getThemePreference = () => {
+    const getThemePreference = (): 'light' | 'dark' => {
       if (
         typeof localStorage !== 'undefined' &&
         localStorage.getItem('theme')
       ) {
-        return localStorage.getItem('theme');
+        return localStorage.getItem('theme') as 'light' | 'dark';
       }
 
       return window.matchMedia('(prefers-color-scheme: dark)').matches
         ? 'dark'
         : 'light';
     };
-    function setThemeClassList(document, theme) {
+    function setThemeClassList(document: Document, theme: 'light' | 'dark') {
       const isDark = theme === 'dark';
       document.documentElement.classList[isDark ? 'add' : 'remove']('dark');
     }
@@ -34,7 +34,10 @@ import { ViewTransitions } from 'astro:transitions';
       });
     }
     document.addEventListener('astro:before-swap', (ev) => {
-      setThemeClassList(ev.newDocument, getThemePreference());
+      setThemeClassList(
+        (ev as Event & { newDocument: Document }).newDocument,
+        getThemePreference(),
+      );
     });
   })();
 </script>

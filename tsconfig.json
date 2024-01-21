@@ -7,6 +7,7 @@
     "public/",
     "subPackages/"
   ],
+  "include": [".remarkrc.mjs", "src/**/*", "astro.config.mjs", "package.json"],
   "compilerOptions": {
     "jsx": "react-jsx",
     "jsxImportSource": "react",
@@ -14,6 +15,8 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "exactOptionalPropertyTypes": false
+    "exactOptionalPropertyTypes": false,
+    "checkJs": true,
+    "allowJs": true
   }
 }
