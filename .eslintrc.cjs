@@ -1,6 +1,12 @@
 /** @type {import("eslint").Linter.Config} */
 module.exports = {
-  extends: ['plugin:astro/recommended'],
+  extends: [
+    // 'plugin:react/recommended',
+    'plugin:astro/recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:mdx/recommended',
+    'eslint-config-prettier',
+  ],
   parser: '@typescript-eslint/parser',
   ignorePatterns: [
     'node_modules',
@@ -35,6 +41,10 @@ module.exports = {
       rules: {
         // ...
       },
+    },
+    {
+      files: ['*.mdx'],
+      extends: 'plugin:mdx/recommended',
     },
   ],
 };

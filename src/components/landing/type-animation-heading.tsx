@@ -1,11 +1,12 @@
 import React from 'react';
+import type { ComponentProps } from 'react';
 import { TypeAnimation } from 'react-type-animation';
 
 export const TypeAnimationHeading = React.forwardRef<
   HTMLSpanElement,
   {
     className?: string;
-    sequence?: any[];
+    sequence?: ComponentProps<typeof TypeAnimation>['sequence'];
   } & React.HTMLAttributes<HTMLSpanElement>
 >(({ sequence, ...props }, ref) => {
   return (
