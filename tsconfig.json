@@ -1,6 +1,12 @@
 {
   "extends": "astro/tsconfigs/strictest",
-  "exclude": ["_next_implementation/", "node_modules/", "dist/", "public/"],
+  "exclude": [
+    "_next_implementation/",
+    "node_modules/",
+    "dist/",
+    "public/",
+    "subPackages/"
+  ],
   "compilerOptions": {
     "jsx": "react-jsx",
     "jsxImportSource": "react",
