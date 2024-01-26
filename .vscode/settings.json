@@ -1,14 +1,17 @@
 {
   "eslint.validate": [
+    "markdown",
+    "mdx",
     "javascript",
     "javascriptreact",
-    "astro",
     "typescript",
-    "typescriptreact"
+    "typescriptreact",
+    "astro"
   ],
   "prettier.documentSelectors": ["**/*.astro"],
   "[astro]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "eslint.experimental.useFlatConfig": true
 }

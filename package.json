@@ -6,7 +6,8 @@
     "dev": "npm run lint && astro dev",
     "build": "npm run lint && astro build",
     "preview": "astro preview",
-    "lint": "prettier --write  \"**/*.{js,jsx,ts,tsx,md,mdx,astro}\" && eslint --fix \"src/**/*.{js,ts,jsx,tsx,astro}\" && astro check && remark src/content/**/*.mdx"
+    "lint": "prettier --write  \"**/*.{js,jsx,ts,tsx,md,mdx,astro}\" && eslint --fix src && astro check && remark src/content/**/*.mdx",
+    "temp": "eslint src"
   },
   "dependencies": {
     "@astrojs/check": "^0.4.1",
@@ -59,9 +60,11 @@
     "three": "^0.160.0"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.0.0",
     "@ianvs/prettier-plugin-sort-imports": "^4.1.1",
-    "@typescript-eslint/eslint-plugin": "^6.19.0",
-    "@typescript-eslint/parser": "^6.19.0",
+    "@types/eslint__eslintrc": "^2.1.1",
+    "@typescript-eslint/eslint-plugin": "^6.19.1",
+    "@typescript-eslint/parser": "^6.19.1",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-astro": "^0.31.3",

@@ -8,7 +8,13 @@
     "subPackages/",
     ".astro/",
   ],
-  "include": [".remarkrc.mjs", "src/**/*", "astro.config.mjs", "package.json"],
+  "include": [
+    ".remarkrc.mjs",
+    "src/**/*",
+    "astro.config.mjs",
+    "package.json",
+    "eslint.config.js",
+  ],
   "compilerOptions": {
     "jsx": "react-jsx",
     "jsxImportSource": "react",
@@ -19,5 +25,6 @@
     "exactOptionalPropertyTypes": false,
     "checkJs": true,
     "allowJs": true,
+    "verbatimModuleSyntax": true,
   },
 }
