@@ -9,3 +9,6 @@ https://www.youtube.com/watch?v=5Ka3tbbT-9E
 # Making small wasm stuff
 
 https://cliffle.com/blog/bare-metal-wasm/
+
+Rust book
+https://doc.rust-lang.org/book/ch04-03-slices.html
