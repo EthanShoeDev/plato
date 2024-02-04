@@ -3,6 +3,9 @@ name = "wasm-falling-sand"
 version = "0.1.0"
 authors = ["EthanShoeDev <13422990+EthanShoeDev@users.noreply.github.com>"]
 edition = "2018"
+description = "A falling sand game written in Rust and compiled to WebAssembly"
+license = "MIT"
+repository = "https://gitea.ethanshoe.dev/ethan/plato.git"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
@@ -21,6 +24,7 @@ console_error_panic_hook = { version = "0.1.7", optional = true }
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.34"
+cargo-watch = "8.5.2"
 
 [profile.release]
 # Tell `rustc` to optimize for small code size.
