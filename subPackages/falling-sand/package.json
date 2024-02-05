@@ -4,8 +4,12 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
+    "dev": "concurrently \"npm:dev:vite\" \"npm:dev:wasm\"",
+    "dev:vite": "vite",
+    "dev:wasm": "cd wasm-falling-sand && cargo watch -i .gitignore -i \"pkg/*\" -s \"wasm-pack build --dev\"",
+    "build": "npm run build:wasm && npm run build:vite",
+    "build:vite": "tsc && vite build",
+    "build:wasm": "cd wasm-falling-sand && wasm-pack build --release",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
@@ -20,10 +24,12 @@
     "@typescript-eslint/eslint-plugin": "^6.14.0",
     "@typescript-eslint/parser": "^6.14.0",
     "@vitejs/plugin-react-swc": "^3.5.0",
+    "concurrently": "^8.2.2",
     "eslint": "^8.55.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
     "typescript": "^5.2.2",
-    "vite": "^5.0.8"
+    "vite": "^5.0.8",
+    "vite-plugin-wasm": "^3.3.0"
   }
 }
