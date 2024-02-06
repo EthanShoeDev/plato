@@ -1,15 +1,14 @@
 import dictionary from 'dictionary-en';
 import remarkLintFileExtension from 'remark-lint-file-extension';
-// @ts-ignore
+// @ts-expect-error no types given
 import remarkLintNoDeadUrls from 'remark-lint-no-dead-urls';
 import remarkLintNoDuplicateHeadingsInSection from 'remark-lint-no-duplicate-headings-in-section';
-// @ts-ignore
+// @ts-expect-error no types given
 import remarkLintNoEmptySections from 'remark-lint-no-empty-sections';
 import remarkLintNoEmptyUrl from 'remark-lint-no-empty-url';
-// @ts-ignore
+// @ts-expect-error no types given
 import remarkLintNoUrlTrailingSlash from 'remark-lint-no-url-trailing-slash';
-// @ts-ignore
-import remarkLintWriteGood from 'remark-lint-write-good';
+// import remarkLintWriteGood from 'remark-lint-write-good';
 import remarkMdx from 'remark-mdx';
 import remarkPresetLintConsistent from 'remark-preset-lint-consistent';
 import remarkPresetLintMarkdownStyleGuide from 'remark-preset-lint-markdown-style-guide';
@@ -19,9 +18,9 @@ import remarkRetext from 'remark-retext';
 import retextEnglish from 'retext-english';
 import retextIndefiniteArticle from 'retext-indefinite-article';
 import retextPassive from 'retext-passive';
-import retextReadability from 'retext-readability';
+// import retextReadability from 'retext-readability';
 import retextRepeatedWords from 'retext-repeated-words';
-import retextSimplify from 'retext-simplify';
+// import retextSimplify from 'retext-simplify';
 import retextSpell from 'retext-spell';
 import { unified } from 'unified';
 
@@ -35,8 +34,7 @@ const remarkConfig = {
     remarkPresetLintRecommended, // Few recommended rules.
     remarkPresetLintMarkdownStyleGuide,
     remarkLintNoDuplicateHeadingsInSection,
-    remarkLintWriteGood,
-    remarkLintNoEmptySections,
+    // remarkLintWriteGood,
     remarkLintNoDeadUrls,
     remarkLintNoUrlTrailingSlash,
     remarkLintNoEmptyUrl,
@@ -44,19 +42,19 @@ const remarkConfig = {
       remarkRetext,
       unified()
         .use(retextEnglish)
-        // @ts-ignore
         .use(retextSpell, {
           dictionary: (onload) => onload(undefined, dictionary),
         })
-        .use(retextReadability)
+        // .use(retextReadability)
         .use(retextIndefiniteArticle)
         .use(retextPassive)
-        .use(retextRepeatedWords)
-        .use(retextSimplify),
+        .use(retextRepeatedWords),
+      // .use(retextSimplify),
     ],
     remarkMdx,
     [remarkLintFileExtension, 'mdx'],
     presetPrettier,
+    [remarkLintNoEmptySections, 'off'],
   ],
 };
 

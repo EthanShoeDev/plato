@@ -70,4 +70,7 @@ export default [
       '@typescript-eslint/triple-slash-reference': 'off',
     },
   },
+  {
+    ignores: ['subPackages/**', 'src/content/.obsidian/**'],
+  },
 ];

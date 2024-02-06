@@ -26,7 +26,6 @@ const config = {
   ],
   plugins: ['prettier-plugin-astro', '@ianvs/prettier-plugin-sort-imports'],
   importOrderParserPlugins: ['typescript', 'jsx', 'decorators-legacy'],
-
   overrides: [
     {
       files: '*.astro',

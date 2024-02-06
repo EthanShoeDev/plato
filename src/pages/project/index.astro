@@ -1,0 +1,16 @@
+---
+import BaseHead from '@/layouts/base-head-layout.astro';
+
+import { CanvasBackgroundSceneSSR } from '@/components/landing/canvas-background-scene-ssr';
+import { LandingContent } from '@/components/landing/landing-content';
+---
+
+<html lang="en">
+  <head>
+    <BaseHead />
+  </head>
+  <body class="bg-background">
+    <CanvasBackgroundSceneSSR client:load />
+    <LandingContent client:load />
+  </body>
+</html>
