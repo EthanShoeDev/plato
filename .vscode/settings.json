@@ -1,14 +1,17 @@
 {
-  "conventionalCommits.scopes": ["all", "dx", "mdx"],
-  "[markdown]": {
-    "editor.defaultFormatter": "unifiedjs.vscode-remark",
-    "editor.formatOnSave": true
+  "eslint.validate": [
+    "markdown",
+    "mdx",
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+    "astro"
+  ],
+  "prettier.documentSelectors": ["**/*.astro"],
+  "[astro]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "yaml.schemas": {
-    "http://json-schema.org/draft-07/schema#": ["content/**/*.schema.yaml"]
-  },
-  "eslint.validate": ["markdown", "mdx"],
-  "auto-close-tag.activationOnLanguage": ["mdx"],
-  "mdx.server.enable": true,
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "eslint.experimental.useFlatConfig": true
 }

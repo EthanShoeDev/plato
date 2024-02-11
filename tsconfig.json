@@ -1,35 +1,30 @@
 {
-  "compilerOptions": {
-    "target": "es5",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "preserve",
-    "checkJs": true,
-    "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
-    "paths": {
-      "@/*": ["./*"]
-    }
-  },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts",
-    "**/*.mdx",
-    ".remarkrc.mjs"
+  "extends": "astro/tsconfigs/strictest",
+  "exclude": [
+    "_next_implementation/",
+    "node_modules/",
+    "dist/",
+    "public/",
+    "subPackages/",
+    ".astro/",
   ],
-  "exclude": ["node_modules"]
+  "include": [
+    ".remarkrc.mjs",
+    "src/**/*",
+    "astro.config.mjs",
+    "package.json",
+    "eslint.config.js",
+  ],
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+    },
+    "exactOptionalPropertyTypes": false,
+    "checkJs": true,
+    "allowJs": true,
+    "verbatimModuleSyntax": true,
+  },
 }
