@@ -6,6 +6,7 @@ const config = {
   tabWidth: 2,
   trailingComma: 'all',
   importOrder: [
+    //TODO: https://github.com/lydell/eslint-plugin-simple-import-sort
     '^(react/(.*)$)|^(react$)',
     '^(next/(.*)$)|^(next$)',
     '^(astro/(.*)$)|^(astro$)',

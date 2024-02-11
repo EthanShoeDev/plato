@@ -14,6 +14,7 @@ const compat = new FlatCompat({ resolvePluginsRelativeTo: __dirname });
 export default [
   // --------- Typescript React Config ---------
   // https://github.com/typescript-eslint/typescript-eslint/pull/7935 TODO
+  // https://github.com/typescript-eslint/typescript-eslint/issues/7694#issuecomment-1933294547
   ...compat.plugins('@typescript-eslint'),
   ...compat.extends('plugin:@typescript-eslint/recommended'), // ts, tsx, mts, cts
   // --------- MDX Config ---------
